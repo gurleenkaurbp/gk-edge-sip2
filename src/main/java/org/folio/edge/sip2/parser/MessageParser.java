@@ -65,7 +65,10 @@ public abstract class MessageParser {
   protected OffsetDateTime parseDateTime(char [] messageChars) {
     final String dateTimeString = new String(messageChars, position, 18);
     position += 18;
-
+    // if no dateTimeString is bassed in this position assume epoch date 0 or now?
+    if (dateTimeString.trim() == "") {
+      return convertFieldToDateTime("19700101    000000");
+    }
     return convertFieldToDateTime(dateTimeString);
   }
 
