@@ -65,8 +65,10 @@ public abstract class MessageParser {
   protected OffsetDateTime parseDateTime(char [] messageChars) {
     final String dateTimeString = new String(messageChars, position, 18);
     position += 18;
-    // if no dateTimeString is bassed in this position assume epoch date 0 or now?
-    if (dateTimeString.trim() == "") {
+    
+    // if no dateTimeString in this position assume epoch date as dummy entry
+    // This allows the module to work with Envisionware selfchecks
+    if (dateTimeString.trim().equals("")) {
       return convertFieldToDateTime("19700101    000000");
     }
     return convertFieldToDateTime(dateTimeString);
