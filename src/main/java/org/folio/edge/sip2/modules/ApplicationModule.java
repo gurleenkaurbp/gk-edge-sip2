@@ -3,8 +3,10 @@ package org.folio.edge.sip2.modules;
 import static org.folio.edge.sip2.parser.Command.CHECKIN_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.CHECKOUT_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.END_SESSION_RESPONSE;
+import static org.folio.edge.sip2.parser.Command.FEE_PAID_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.LOGIN_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.PATRON_INFORMATION_RESPONSE;
+import static org.folio.edge.sip2.parser.Command.PATRON_STATUS_RESPONSE;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -65,6 +67,18 @@ public class ApplicationModule extends AbstractModule {
     return FreemarkerRepository.getInstance().getFreemarkerTemplate(PATRON_INFORMATION_RESPONSE);
   }
 
+  @Provides
+  @Named("patronStatusResponse")
+  Template providePatronStatusResponseTemplate() {
+    return FreemarkerRepository.getInstance().getFreemarkerTemplate(PATRON_STATUS_RESPONSE);
+  }
+
+  @Provides
+  @Named("feePaidResponse")
+  Template feePaidResponseTemplate() {
+    return FreemarkerRepository.getInstance().getFreemarkerTemplate(FEE_PAID_RESPONSE);
+  }
+  
   @Provides
   @Named("endSessionResponse")
   Template provideEndSessionResponseTemplate() {

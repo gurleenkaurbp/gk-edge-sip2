@@ -18,6 +18,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import java.time.Clock;
 import java.util.UUID;
 import org.folio.edge.sip2.api.support.TestUtils;
 import org.folio.edge.sip2.session.SessionData;
@@ -31,21 +32,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class FeeFinesRepositoryTests {
   private static final String FIELD_TOTAL_RECORDS = "totalRecords";
   private static final String FIELD_MANUALBLOCKS = "manualblocks";
+  private @Mock Clock mockClock = Clock.systemUTC();
+  private @Mock UsersRepository mockUsersRepository;
+
 
   @Test
   public void canCreateFeeFinesRepository(
       @Mock IResourceProvider<IRequestData> mockFolioResource) {
-    final FeeFinesRepository usersRepository =
-        new FeeFinesRepository(mockFolioResource);
+    final FeeFinesRepository feeFinesRepository =
+        new FeeFinesRepository(mockFolioResource, mockUsersRepository, mockClock);
 
-    assertNotNull(usersRepository);
+    assertNotNull(feeFinesRepository);
   }
 
   @Test
   public void cannotCreateFeeFinesRepositoryWhenResourceProviderIsNull() {
     final NullPointerException thrown = assertThrows(
         NullPointerException.class,
-        () -> new FeeFinesRepository(null));
+        () -> new FeeFinesRepository(null, mockUsersRepository, mockClock));
 
     assertEquals("Resource provider cannot be null", thrown.getMessage());
   }
@@ -64,7 +68,8 @@ public class FeeFinesRepositoryTests {
 
     final SessionData sessionData = TestUtils.getMockedSessionData();
 
-    final FeeFinesRepository feeFinesRepository = new FeeFinesRepository(mockFolioProvider);
+    final FeeFinesRepository feeFinesRepository = 
+        new FeeFinesRepository(mockFolioProvider, mockUsersRepository, mockClock);
     feeFinesRepository.getManualBlocksByUserId(UUID.randomUUID().toString(),
         sessionData).setHandler(
             testContext.succeeding(manualBlocks -> testContext.verify(() -> {
@@ -86,7 +91,8 @@ public class FeeFinesRepositoryTests {
 
     final SessionData sessionData = TestUtils.getMockedSessionData();
 
-    final FeeFinesRepository feeFinesRepository = new FeeFinesRepository(mockFolioProvider);
+    final FeeFinesRepository feeFinesRepository = 
+        new FeeFinesRepository(mockFolioProvider, mockUsersRepository, mockClock);
     feeFinesRepository.getManualBlocksByUserId(UUID.randomUUID().toString(),
         sessionData).setHandler(
             testContext.succeeding(manualBlocks -> testContext.verify(() -> {
@@ -113,7 +119,8 @@ public class FeeFinesRepositoryTests {
 
     final SessionData sessionData = TestUtils.getMockedSessionData();
 
-    final FeeFinesRepository feeFinesRepository = new FeeFinesRepository(mockFolioProvider);
+    final FeeFinesRepository feeFinesRepository = 
+        new FeeFinesRepository(mockFolioProvider, mockUsersRepository, mockClock);
     feeFinesRepository.getManualBlocksByUserId(userId, sessionData).setHandler(
         testContext.succeeding(manualBlocks -> testContext.verify(() -> {
           assertNotNull(manualBlocks);

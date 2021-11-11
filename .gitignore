@@ -6,3 +6,5 @@
 /.checkstyle
 .idea/
 edge-sip2.iml
+gdg-build-deploy.sh
+.gitignore

@@ -60,6 +60,7 @@ public class LoginRepository {
             log.error("Login does not have a valid authentication token");
             return Future.succeededFuture(LoginResponse.builder().ok(FALSE).build());
           }
+          sessionData.setUsername(user);
           sessionData.setAuthenticationToken(authenticationToken);
           sessionData.setScLocation(locationCode);
           return Future.succeededFuture(

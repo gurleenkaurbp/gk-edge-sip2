@@ -4,8 +4,10 @@ import static java.lang.Boolean.FALSE;
 import static org.folio.edge.sip2.parser.Command.CHECKIN;
 import static org.folio.edge.sip2.parser.Command.CHECKOUT;
 import static org.folio.edge.sip2.parser.Command.END_PATRON_SESSION;
+import static org.folio.edge.sip2.parser.Command.FEE_PAID;
 import static org.folio.edge.sip2.parser.Command.LOGIN;
 import static org.folio.edge.sip2.parser.Command.PATRON_INFORMATION;
+import static org.folio.edge.sip2.parser.Command.PATRON_STATUS_REQUEST;
 import static org.folio.edge.sip2.parser.Command.REQUEST_ACS_RESEND;
 import static org.folio.edge.sip2.parser.Command.REQUEST_SC_RESEND;
 import static org.folio.edge.sip2.parser.Command.SC_STATUS;
@@ -35,10 +37,12 @@ import org.folio.edge.sip2.domain.PreviousMessage;
 import org.folio.edge.sip2.handlers.CheckinHandler;
 import org.folio.edge.sip2.handlers.CheckoutHandler;
 import org.folio.edge.sip2.handlers.EndPatronSessionHandler;
+import org.folio.edge.sip2.handlers.FeePaidHandler;
 import org.folio.edge.sip2.handlers.HandlersFactory;
 import org.folio.edge.sip2.handlers.ISip2RequestHandler;
 import org.folio.edge.sip2.handlers.LoginHandler;
 import org.folio.edge.sip2.handlers.PatronInformationHandler;
+import org.folio.edge.sip2.handlers.PatronStatusHandler;
 import org.folio.edge.sip2.metrics.Metrics;
 import org.folio.edge.sip2.modules.ApplicationModule;
 import org.folio.edge.sip2.modules.FolioResourceProviderModule;
@@ -92,6 +96,8 @@ public class MainVerticle extends AbstractVerticle {
       handlers.put(REQUEST_ACS_RESEND, HandlersFactory.getACSResendHandler());
       handlers.put(LOGIN, injector.getInstance(LoginHandler.class));
       handlers.put(PATRON_INFORMATION, injector.getInstance(PatronInformationHandler.class));
+      handlers.put(PATRON_STATUS_REQUEST, injector.getInstance(PatronStatusHandler.class));
+      handlers.put(FEE_PAID, injector.getInstance(FeePaidHandler.class));
       handlers.put(REQUEST_SC_RESEND, HandlersFactory.getInvalidMessageHandler());
       handlers.put(END_PATRON_SESSION, injector.getInstance(EndPatronSessionHandler.class));
     }
@@ -115,13 +121,15 @@ public class MainVerticle extends AbstractVerticle {
       JsonObject tenantConfig = TenantUtils.lookupTenantConfigForIPaddress(multiTenantConfig, 
           clientAddress);
       
+      final String defaultTimezone = "America/Los_Angeles";
       final SessionData sessionData = SessionData.createSession(
           tenantConfig.getString("tenant"),
           tenantConfig.getString("fieldDelimiter", "|").charAt(0),
           tenantConfig.getBoolean("errorDetectionEnabled", FALSE),
           tenantConfig.getString("charset", "IBM850"));
+      sessionData.setTimeZone(defaultTimezone);
+      //log.warn("t: {}",tenantConfig);
       final String messageDelimiter = tenantConfig.getString("messageDelimiter", "\r");
-
       socket.handler(RecordParser.newDelimited(messageDelimiter, buffer -> {
         final Timer.Sample sample = metrics.sample();
 

@@ -278,7 +278,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertNotNull(patronInformationResponse.getPatronStatus());
@@ -381,7 +381,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertNotNull(patronInformationResponse.getPatronStatus());
