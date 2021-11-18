@@ -245,16 +245,39 @@ public class PatronRepository {
     //addPersonalData(personal, patronStatus.getPatronIdentifier(), builder);
     // When all operations complete, build and return the final PatronInformationResponse
     
-    return Future.succeededFuture(builder
-        .patronStatus(EnumSet.allOf(PatronStatus.class))
-        .language(patronStatus.getLanguage())
-        .transactionDate(OffsetDateTime.now(clock))
-        .institutionId(patronStatus.getInstitutionId())
-        .patronIdentifier(patronStatus.getPatronIdentifier())
-        .validPatron(TRUE)
-        .validPatronPassword(validPassword)
-        .build()
+    final Future<PatronStatusResponseBuilder> getFeeAmountFuture = feeFinesRepository
+        .getFeeAmountByUserId(userId, sessionData)
+        .map(accounts -> { 
+          return totalAmount(accounts, builder);
+        }
+      );
+        
+    return getFeeAmountFuture.map(result -> {
+          return builder
+            .patronStatus(EnumSet.allOf(PatronStatus.class))
+            .language(patronStatus.getLanguage())
+            .transactionDate(OffsetDateTime.now(clock))
+            .institutionId(patronStatus.getInstitutionId())
+            .patronIdentifier(patronStatus.getPatronIdentifier())
+            //.feeAmount("0.00")
+            .validPatron(TRUE)
+            .validPatronPassword(validPassword)
+            .build();
+        }
     );
+  }
+
+  private PatronStatusResponseBuilder totalAmount(
+      JsonObject jo,
+      PatronStatusResponseBuilder builder) {
+    
+    final JsonArray arr = jo.getJsonArray("accounts");
+    Float total = 0.0f;
+    for (int i = 0;i < arr.size();i++) {
+      total += arr.getJsonObject(i).getFloat("remaining");
+    }
+    log.debug(total.toString());
+    return builder.feeAmount(total.toString());
   }
 
   private Future<PatronInformationResponse> invalidPatron(
