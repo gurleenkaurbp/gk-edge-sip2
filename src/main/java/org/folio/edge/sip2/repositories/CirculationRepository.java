@@ -14,10 +14,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.edge.sip2.domain.messages.requests.Checkin;
 import org.folio.edge.sip2.domain.messages.requests.Checkout;
 import org.folio.edge.sip2.domain.messages.responses.CheckinResponse;
@@ -33,6 +36,7 @@ import org.folio.edge.sip2.utils.Utils;
  *
  */
 public class CirculationRepository {
+  private static final Logger log = LogManager.getLogger();
   // Should consider letting the template take care of required fields with missing values
   private static final String UNKNOWN = "";
   private final IResourceProvider<IRequestData> resourceProvider;
@@ -79,7 +83,26 @@ public class CirculationRepository {
 
     return result
         .otherwise(() -> null)
-        .compose(resource -> Future.succeededFuture(
+        .compose(resource -> {
+          String itemStatusString = resource.getResource() == null ? UNKNOWN
+              : getSubChildString(resource.getResource(),
+                  Arrays.asList("item", "status"), "name", UNKNOWN);
+          String transitDestinationString = resource.getResource() == null ? UNKNOWN
+              : getSubChildString(resource.getResource(),
+                  Arrays.asList("item", "inTransitDestinationServicePoint"), "name", UNKNOWN);
+          // This actually belongs in Item Informtion 
+          String patronNameString = (resource.getResource() == null ? UNKNOWN
+              : getSubChildString(resource.getResource(),
+                  Arrays.asList("staffSlipContext", "requester"), "firstName", UNKNOWN))
+              +  " "
+              + (resource.getResource() == null ? UNKNOWN
+                  : getSubChildString(resource.getResource(),
+                      Arrays.asList("staffSlipContext", "requester"), "lastName", UNKNOWN));
+          List<String> scrnMsg = List.of(itemStatusString
+              + " - "
+              + transitDestinationString);
+          log.info(patronNameString);
+          return Future.succeededFuture(
             CheckinResponse.builder()
               .ok(resource.getResource() == null ? FALSE : TRUE)
               .resensitize(resource.getResource() == null ? FALSE : TRUE)
@@ -88,6 +111,10 @@ public class CirculationRepository {
               .transactionDate(OffsetDateTime.now(clock))
               .institutionId(institutionId)
               .itemIdentifier(itemIdentifier)
+              .materialType(
+                  resource.getResource() == null ? UNKNOWN
+                      : getSubChildString(resource.getResource(),
+                          Arrays.asList("item", "materialType"), "name", UNKNOWN))
               // if the title is not available, use the item identifier passed in to the checkin.
               // this allows the kiosk to show something related to the item that could be used
               // by the patron to identify which item this checkin response applies to.
@@ -95,11 +122,15 @@ public class CirculationRepository {
                   : getChildString(resource.getResource(), "item", "title", itemIdentifier))
               // this is probably not the permanent location
               // this might require a call to inventory
+              // GDG - it appears to be effective location, which is most likely appropriate
               .permanentLocation(
                   resource.getResource() == null ? UNKNOWN
                       : getSubChildString(resource.getResource(),
                           Arrays.asList("item", "location"), "name", UNKNOWN))
-              .build()));
+              .screenMessage(scrnMsg)
+              .build());
+        }
+        );
   }
 
   /**
@@ -180,7 +211,7 @@ public class CirculationRepository {
    * Get requests for the specified patron.
    *
    * @param userId the FOLIO ID of the patron
-   * @param requestType The request type to filter on
+   * @param requestType The request type to filter onaaaaaaaaaaaaaaaaa
    * @param startItem the first item to return
    * @param endItem the last item to return
    * @param sessionData session data

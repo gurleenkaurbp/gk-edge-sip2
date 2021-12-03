@@ -218,8 +218,15 @@ public class PatronRepository {
     final Future<PatronInformationResponseBuilder> recallsFuture =
         getRecalls(userId, sessionData).compose(recalls -> addRecalls(recalls, startItem, endItem,
             patronInformation.getSummary() == RECALL_ITEMS, builder));
+
+    final Future<PatronInformationResponseBuilder> getFeeAmountFuture = 
+        feeFinesRepository.getFeeAmountByUserId(userId, sessionData)
+            .map(accounts -> { 
+              return totalAmount(accounts, builder);
+            });
     // When all operations complete, build and return the final PatronInformationResponse
-    return CompositeFuture.all(manualBlocksFuture, holdsFuture, overdueFuture, recallsFuture)
+    return CompositeFuture.all(
+      manualBlocksFuture, holdsFuture, overdueFuture, recallsFuture, getFeeAmountFuture)
         .map(result -> builder
             // Get tenant language from config along with the timezone
             .language(patronInformation.getLanguage())
@@ -259,7 +266,6 @@ public class PatronRepository {
             .transactionDate(OffsetDateTime.now(clock))
             .institutionId(patronStatus.getInstitutionId())
             .patronIdentifier(patronStatus.getPatronIdentifier())
-            //.feeAmount("0.00")
             .validPatron(TRUE)
             .validPatronPassword(validPassword)
             .build();
@@ -270,6 +276,19 @@ public class PatronRepository {
   private PatronStatusResponseBuilder totalAmount(
       JsonObject jo,
       PatronStatusResponseBuilder builder) {
+    
+    final JsonArray arr = jo.getJsonArray("accounts");
+    Float total = 0.0f;
+    for (int i = 0;i < arr.size();i++) {
+      total += arr.getJsonObject(i).getFloat("remaining");
+    }
+    log.debug(total.toString());
+    return builder.feeAmount(total.toString());
+  }
+
+  private PatronInformationResponseBuilder totalAmount(
+      JsonObject jo,
+      PatronInformationResponseBuilder builder) {
     
     final JsonArray arr = jo.getJsonArray("accounts");
     Float total = 0.0f;

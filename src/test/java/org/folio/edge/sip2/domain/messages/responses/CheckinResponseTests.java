@@ -31,6 +31,7 @@ class CheckinResponseTests {
   final String patronIdentifier = "1234567890";
   final MediaType mediaType = VIDEO_TAPE;
   final String itemProperties = "Directors Cut";
+  final String materialType = "The Collection";
   final List<String> screenMessage = asList("Please rewind");
   final List<String> printLine = asList("Enjoy!");
 
@@ -50,6 +51,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -70,6 +72,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -90,6 +93,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -110,6 +114,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -132,6 +137,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -152,6 +158,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -174,6 +181,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -196,6 +204,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -218,6 +227,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -238,6 +248,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -260,6 +271,7 @@ class CheckinResponseTests {
     assertEquals(patronIdentifier, cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -280,6 +292,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertEquals(mediaType, cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -302,6 +315,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertEquals(itemProperties, cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -322,6 +336,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertEquals(screenMessage, cir.getScreenMessage());
     assertNull(cir.getPrintLine());
   }
@@ -342,6 +357,7 @@ class CheckinResponseTests {
     assertNull(cir.getPatronIdentifier());
     assertNull(cir.getMediaType());
     assertNull(cir.getItemProperties());
+    assertNull(cir.getMaterialType());
     assertNull(cir.getScreenMessage());
     assertEquals(printLine, cir.getPrintLine());
   }
@@ -362,6 +378,7 @@ class CheckinResponseTests {
         .patronIdentifier(patronIdentifier)
         .mediaType(mediaType)
         .itemProperties(itemProperties)
+        .materialType(materialType)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -379,6 +396,7 @@ class CheckinResponseTests {
         () -> assertEquals(patronIdentifier, cir.getPatronIdentifier()),
         () -> assertEquals(mediaType, cir.getMediaType()),
         () -> assertEquals(itemProperties, cir.getItemProperties()),
+        () -> assertEquals(materialType, cir.getMaterialType()),
         () -> assertEquals(screenMessage, cir.getScreenMessage()),
         () -> assertEquals(printLine, cir.getPrintLine())
     );
@@ -400,6 +418,7 @@ class CheckinResponseTests {
         .patronIdentifier(patronIdentifier)
         .mediaType(mediaType)
         .itemProperties(itemProperties)
+        .materialType(materialType)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -417,6 +436,7 @@ class CheckinResponseTests {
         .patronIdentifier(patronIdentifier)
         .mediaType(mediaType)
         .itemProperties(itemProperties)
+        .materialType(materialType)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -440,6 +460,7 @@ class CheckinResponseTests {
         .patronIdentifier(patronIdentifier)
         .mediaType(mediaType)
         .itemProperties(itemProperties)
+        .materialType(materialType)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -457,6 +478,7 @@ class CheckinResponseTests {
         .patronIdentifier("111111111")
         .mediaType(OTHER)
         .itemProperties("Testing")
+        .materialType("A shelf")
         .screenMessage(asList("This is a test"))
         .printLine(asList("This is a print test"))
         .build();
@@ -480,6 +502,7 @@ class CheckinResponseTests {
         .append(", patronIdentifier=").append(patronIdentifier)
         .append(", mediaType=").append(mediaType)
         .append(", itemProperties=").append(itemProperties)
+        .append(", materialType=").append(materialType)
         .append(", screenMessage=").append(screenMessage)
         .append(", printLine=").append(printLine)
         .append(']').toString();
@@ -497,6 +520,7 @@ class CheckinResponseTests {
         .patronIdentifier(patronIdentifier)
         .mediaType(mediaType)
         .itemProperties(itemProperties)
+        .materialType(materialType)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();

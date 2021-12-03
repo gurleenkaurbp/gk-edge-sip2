@@ -33,6 +33,8 @@
 <@lib.mediaType value=checkinResponse.mediaType!""/>
 <#-- item properties: variable-length optional field -->
 <@lib.itemProperties value=checkinResponse.itemProperties!""/>
+<#-- sort bin: variable-length optional field -->
+<@lib.materialType value=checkinResponse.materialType!""/>
 <#-- screen message: variable-length optional field -->
 <@lib.screenMessage value=checkinResponse.screenMessage!""/>
 <#-- screen message: variable-length optional field -->

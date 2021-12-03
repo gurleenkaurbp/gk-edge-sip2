@@ -88,6 +88,7 @@ public class CheckinHandlerTests {
     final OffsetDateTime returnDate = OffsetDateTime.now();
     final String institutionId = "diku";
     final String itemIdentifier = "1234567890";
+    final String materialType = "the collection";
     final String currentLocation = UUID.randomUUID().toString();
     final Checkin checkin = Checkin.builder()
         .noBlock(FALSE)
@@ -110,6 +111,7 @@ public class CheckinHandlerTests {
             .transactionDate(OffsetDateTime.now(clock))
             .institutionId(institutionId)
             .itemIdentifier(itemIdentifier)
+            //.materialType(materialType)
             .permanentLocation("")
             .build()));
 

@@ -60,8 +60,10 @@ public final class CheckinResponse {
   private final String patronIdentifier;
   /** The media type of the item. */
   private final MediaType mediaType;
-  /** Specific item information that can be user for identification. */
+  /** Specific item information that can be used for identification. */
   private final String itemProperties;
+  /** The material type for the item. */
+  private final String materialType;
   /** A message to show the patron. */
   private final List<String> screenMessage;
   /** A message to print via the SC's printer. */
@@ -86,6 +88,7 @@ public final class CheckinResponse {
     this.patronIdentifier = builder.patronIdentifier;
     this.mediaType = builder.mediaType;
     this.itemProperties = builder.itemProperties;
+    this.materialType = builder.materialType;
     this.screenMessage = builder.screenMessage == null ? null
         : Collections.unmodifiableList(new ArrayList<>(builder.screenMessage));
     this.printLine = builder.printLine == null ? null
@@ -152,6 +155,10 @@ public final class CheckinResponse {
     return itemProperties;
   }
 
+  public String getMaterialType() {
+    return materialType;
+  }
+  
   public List<String> getScreenMessage() {
     return screenMessage;
   }
@@ -163,7 +170,7 @@ public final class CheckinResponse {
   @Override
   public int hashCode() {
     return Objects.hash(alert, institutionId, itemIdentifier, itemProperties,
-        magneticMedia, mediaType, ok, patronIdentifier, permanentLocation,
+        magneticMedia, materialType, mediaType, ok, patronIdentifier, permanentLocation,
         printLine, resensitize, screenMessage, sortBin, titleIdentifier,
         transactionDate);
   }
@@ -186,6 +193,7 @@ public final class CheckinResponse {
         && Objects.equals(itemProperties, other.itemProperties)
         && Objects.equals(magneticMedia, other.magneticMedia)
         && mediaType == other.mediaType
+        && Objects.equals(materialType, other.materialType)
         && Objects.equals(ok, other.ok)
         && Objects.equals(patronIdentifier, other.patronIdentifier)
         && Objects.equals(permanentLocation, other.permanentLocation)
@@ -213,6 +221,7 @@ public final class CheckinResponse {
         .append(", patronIdentifier=").append(patronIdentifier)
         .append(", mediaType=").append(mediaType)
         .append(", itemProperties=").append(itemProperties)
+        .append(", materialType=").append(materialType)
         .append(", screenMessage=").append(screenMessage)
         .append(", printLine=").append(printLine)
         .append(']').toString();
@@ -234,6 +243,7 @@ public final class CheckinResponse {
     private String sortBin;
     private String patronIdentifier;
     private MediaType mediaType;
+    private String materialType;
     private String itemProperties;
     private List<String> screenMessage;
     private List<String> printLine;
@@ -304,6 +314,11 @@ public final class CheckinResponse {
 
     public CheckinResponseBuilder itemProperties(String itemProperties) {
       this.itemProperties = itemProperties;
+      return this;
+    }
+
+    public CheckinResponseBuilder materialType(String materialType) {
+      this.materialType = materialType;
       return this;
     }
 

@@ -5,6 +5,7 @@ import static org.folio.edge.sip2.parser.Command.CHECKIN;
 import static org.folio.edge.sip2.parser.Command.CHECKOUT;
 import static org.folio.edge.sip2.parser.Command.END_PATRON_SESSION;
 import static org.folio.edge.sip2.parser.Command.FEE_PAID;
+import static org.folio.edge.sip2.parser.Command.ITEM_INFORMATION;
 import static org.folio.edge.sip2.parser.Command.LOGIN;
 import static org.folio.edge.sip2.parser.Command.PATRON_INFORMATION;
 import static org.folio.edge.sip2.parser.Command.PATRON_STATUS_REQUEST;
@@ -40,6 +41,7 @@ import org.folio.edge.sip2.handlers.EndPatronSessionHandler;
 import org.folio.edge.sip2.handlers.FeePaidHandler;
 import org.folio.edge.sip2.handlers.HandlersFactory;
 import org.folio.edge.sip2.handlers.ISip2RequestHandler;
+import org.folio.edge.sip2.handlers.ItemInformationHandler;
 import org.folio.edge.sip2.handlers.LoginHandler;
 import org.folio.edge.sip2.handlers.PatronInformationHandler;
 import org.folio.edge.sip2.handlers.PatronStatusHandler;
@@ -98,6 +100,7 @@ public class MainVerticle extends AbstractVerticle {
       handlers.put(PATRON_INFORMATION, injector.getInstance(PatronInformationHandler.class));
       handlers.put(PATRON_STATUS_REQUEST, injector.getInstance(PatronStatusHandler.class));
       handlers.put(FEE_PAID, injector.getInstance(FeePaidHandler.class));
+      handlers.put(ITEM_INFORMATION, injector.getInstance(ItemInformationHandler.class));
       handlers.put(REQUEST_SC_RESEND, HandlersFactory.getInvalidMessageHandler());
       handlers.put(END_PATRON_SESSION, injector.getInstance(EndPatronSessionHandler.class));
     }

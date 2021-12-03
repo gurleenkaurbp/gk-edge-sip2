@@ -6,6 +6,7 @@ package org.folio.edge.sip2.domain.messages.enumerations;
  * @author mreno-EBSCO
  *
  */
+
 public enum CirculationStatus {
   OTHER,
   ON_ORDER,
@@ -21,3 +22,4 @@ public enum CirculationStatus {
   LOST,
   MISSING
 }
+

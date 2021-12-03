@@ -4,6 +4,7 @@ import static org.folio.edge.sip2.parser.Command.CHECKIN_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.CHECKOUT_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.END_SESSION_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.FEE_PAID_RESPONSE;
+import static org.folio.edge.sip2.parser.Command.ITEM_INFORMATION_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.LOGIN_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.PATRON_INFORMATION_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.PATRON_STATUS_RESPONSE;
@@ -20,6 +21,7 @@ import org.folio.edge.sip2.repositories.FeeFinesRepository;
 import org.folio.edge.sip2.repositories.FolioResourceProvider;
 import org.folio.edge.sip2.repositories.IRequestData;
 import org.folio.edge.sip2.repositories.IResourceProvider;
+import org.folio.edge.sip2.repositories.ItemRepository;
 import org.folio.edge.sip2.repositories.LoginRepository;
 import org.folio.edge.sip2.repositories.PasswordVerifier;
 import org.folio.edge.sip2.repositories.UsersRepository;
@@ -38,6 +40,7 @@ public class ApplicationModule extends AbstractModule {
     bind(Clock.class).toInstance(Clock.systemUTC());
     bind(CirculationRepository.class);
     bind(FeeFinesRepository.class);
+    bind(ItemRepository.class);
     bind(LoginRepository.class);
     bind(UsersRepository.class);
     bind(PasswordVerifier.class);
@@ -77,6 +80,12 @@ public class ApplicationModule extends AbstractModule {
   @Named("feePaidResponse")
   Template feePaidResponseTemplate() {
     return FreemarkerRepository.getInstance().getFreemarkerTemplate(FEE_PAID_RESPONSE);
+  }
+
+  @Provides
+  @Named("itemInformationResponse")
+  Template provideItemInformationResponseTemplate() {
+    return FreemarkerRepository.getInstance().getFreemarkerTemplate(ITEM_INFORMATION_RESPONSE);
   }
   
   @Provides

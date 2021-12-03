@@ -98,7 +98,8 @@ public abstract class MessageParser {
   protected OffsetDateTime convertFieldToDateTime(String dateTimeString) {
     OffsetDateTime now = OffsetDateTime.now(ZoneId.of(this.timezone));
     DateTimeMapper dtMapper = new DateTimeMapper(now.getOffset());
-    return dtMapper.mapDateTime(dateTimeString).withOffsetSameInstant(ZoneOffset.UTC);
+    return dtMapper.mapDateTime(dateTimeString.replace('Z',' '))
+        .withOffsetSameInstant(ZoneOffset.UTC);
   }
 
   protected Boolean convertFieldToBoolean(String value) {

@@ -106,6 +106,56 @@
   <@fixedLengthNumberToRangeField value=value id="CB" min=0 max=9999 length=4/>
 </#macro>
 
+<#macro circulationStatus value>
+  <#if value?has_content>
+    <#switch value>
+      <#case "OTHER">
+        01<#t>
+        <#break>
+      <#case "ON_ORDER">
+        02<#t>
+        <#break>
+      <#case "AVAILABLE">
+        03<#t>
+        <#break>
+      <#case "CHARGED">
+        04<#t>
+        <#break>
+      <#case "CHARGED_NOT_TO_BE_RECALLED_UNTIL_EARLIEST_RECALL_DATE">
+        05<#t>
+        <#break>
+      <#case "CHARGED_NOT_TO_BE_RECALLED_UNTIL_EARLIEST_RECALL_DATE">
+        06<#t>
+        <#break>
+      <#case "IN_PROCESS">
+        07<#t>
+        <#break>
+      <#case "RECALLED">
+        08<#t>
+        <#break>
+      <#case "WAITING_ON_HOLD_SHELF">
+        09<#t>
+        <#break>
+      <#case "WAITING_TO_BE_RESHELVED">
+        10<#t>
+        <#break>
+      <#case "IN_TRANSIT_BETWEEN_LIBRARY_LOCATIONS">
+        11<#t>
+        <#break>
+      <#case "CLAIMED_RETURNED">
+        12<#t>
+        <#break>
+        12<#t>
+        <#break>
+      <#case "MISSING">
+        13<#t>
+        <#break>
+      <#default>
+        01<#t>
+    </#switch>
+  </#if>
+</#macro>
+
 <#macro currencyType value>
   <#if value?has_content>
     <#--
@@ -114,6 +164,10 @@
     -->
     BH${value}${delimiter}<#t>
   </#if>
+</#macro>
+
+<#macro currentLocation value>
+  <@variableLengthField id="AP" value=value/>
 </#macro>
 
 <#macro desensitize value>
@@ -190,6 +244,12 @@
 
 <#macro fineItemsCount value>
   <@limitNumberToRangeOrSpaces value=value min=0 max=9999 length=4/>
+</#macro>
+
+<#macro holdPickupDate value required=true>
+  <#if required || value?has_content>
+    <@variableLengthDateField id="CM" value=value/>
+  </#if>
 </#macro>
 
 <#macro holdItems value>
@@ -327,6 +387,12 @@
   <@booleanToYorNorU value=value/><#t>
 </#macro>
 
+<#macro materialType value required=false>
+  <#if required || value?has_content>
+    <@variableLengthField id="CR" value=value/>
+  </#if>
+</#macro>
+
 <#macro mediaType value>
   <#if value?has_content>
     CK<#t>
@@ -387,6 +453,10 @@
   <@fixedLengthNumberToRangeField value=value id="CA" min=0 max=9999 length=4/>
 </#macro>
 
+<#macro owner value>
+  <@variableLengthListField id="BG" value=value/>
+</#macro>
+
 <#macro patronIdentifier value required=true>
   <#if required || value?has_content>
     <@variableLengthField id="AA" value=value/>
@@ -423,6 +493,12 @@
   </#if>
 </#macro>
 
+<#macro recallDate value required=false>
+  <#if required || value?has_content>
+    <@variableLengthDateField id="CJ" value=value/>
+  </#if>
+</#macro>
+
 <#macro recallItems value>
   <@variableLengthListField id="BU" value=value/>
 </#macro>
@@ -456,6 +532,27 @@
 <#macro securityInhibit value>
   <#if value?has_content>
     CI<@booleanToYorN value=value/>${delimiter}<#t>
+  </#if>
+</#macro>
+
+<#macro securityMarker value>
+  <#if value?has_content>
+    <#switch value>
+      <#case "OTHER">
+        01<#t>
+        <#break>
+      <#case "NONE">
+        02<#t>
+        <#break>
+      <#case "TATTLE_TAPE_SECURITY_STRIP">
+        03<#t>
+        <#break>
+      <#case "WHISPER_TAPE">
+        04<#t>
+        <#break>
+      <#default>
+        01<#t>
+    </#switch>
   </#if>
 </#macro>
 

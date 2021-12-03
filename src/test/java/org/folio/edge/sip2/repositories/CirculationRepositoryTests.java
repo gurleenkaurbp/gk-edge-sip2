@@ -121,6 +121,7 @@ public class CirculationRepositoryTests {
           assertNull(checkinResponse.getPatronIdentifier());
           assertNull(checkinResponse.getMediaType());
           assertNull(checkinResponse.getItemProperties());
+          assertNull(checkinResponse.getMaterialType());
           assertNull(checkinResponse.getScreenMessage());
           assertNull(checkinResponse.getPrintLine());
 
@@ -177,6 +178,7 @@ public class CirculationRepositoryTests {
           assertNull(checkinResponse.getPatronIdentifier());
           assertNull(checkinResponse.getMediaType());
           assertNull(checkinResponse.getItemProperties());
+          assertNull(checkinResponse.getMaterialType());
           assertNull(checkinResponse.getScreenMessage());
           assertNull(checkinResponse.getPrintLine());
 
@@ -228,6 +230,7 @@ public class CirculationRepositoryTests {
           assertNull(checkinResponse.getPatronIdentifier());
           assertNull(checkinResponse.getMediaType());
           assertNull(checkinResponse.getItemProperties());
+          assertNull(checkinResponse.getMaterialType());
           assertNull(checkinResponse.getScreenMessage());
           assertNull(checkinResponse.getPrintLine());
 
