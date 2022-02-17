@@ -5,12 +5,16 @@ import static java.lang.Boolean.TRUE;
 import static org.folio.edge.sip2.utils.JsonUtils.getChildString;
 import static org.folio.edge.sip2.utils.JsonUtils.getSubChildString;
 
+import io.micrometer.core.ipc.http.HttpSender.Request;
 import io.vertx.core.Future;
+import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,10 +25,16 @@ import java.util.Optional;
 import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.edge.sip2.domain.messages.enumerations.RequestStatus;
 import org.folio.edge.sip2.domain.messages.requests.Checkin;
 import org.folio.edge.sip2.domain.messages.requests.Checkout;
+import org.folio.edge.sip2.domain.messages.requests.Renew;
+import org.folio.edge.sip2.domain.messages.requests.RenewAll;
 import org.folio.edge.sip2.domain.messages.responses.CheckinResponse;
 import org.folio.edge.sip2.domain.messages.responses.CheckoutResponse;
+import org.folio.edge.sip2.domain.messages.responses.RenewAllResponse;
+import org.folio.edge.sip2.domain.messages.responses.RenewAllResponse.RenewAllResponseBuilder;
+import org.folio.edge.sip2.domain.messages.responses.RenewResponse;
 import org.folio.edge.sip2.repositories.domain.User;
 import org.folio.edge.sip2.session.SessionData;
 import org.folio.edge.sip2.utils.Utils;
@@ -90,7 +100,7 @@ public class CirculationRepository {
           String transitDestinationString = resource.getResource() == null ? UNKNOWN
               : getSubChildString(resource.getResource(),
                   Arrays.asList("item", "inTransitDestinationServicePoint"), "name", UNKNOWN);
-          // This actually belongs in Item Informtion 
+          //TODO This actually belongs in Item Informtion 
           String patronNameString = (resource.getResource() == null ? UNKNOWN
               : getSubChildString(resource.getResource(),
                   Arrays.asList("staffSlipContext", "requester"), "firstName", UNKNOWN))
@@ -101,7 +111,6 @@ public class CirculationRepository {
           List<String> scrnMsg = List.of(itemStatusString
               + " - "
               + transitDestinationString);
-          log.info(patronNameString);
           return Future.succeededFuture(
             CheckinResponse.builder()
               .ok(resource.getResource() == null ? FALSE : TRUE)
@@ -208,21 +217,149 @@ public class CirculationRepository {
   }
 
   /**
+   * Perform a renewal for all items on customer account.
+   *
+   * @param renew the checkout domain object
+   * @return the renewal response domain object
+   */
+  public Future<RenewResponse> performRenewCommand(Renew renew,
+      SessionData sessionData) {
+    final String institutionId = renew.getInstitutionId();
+    final String patronIdentifier = renew.getPatronIdentifier();
+    final String patronPassword = renew.getPatronPassword();
+
+    return passwordVerifier.verifyPatronPassword(patronIdentifier, patronPassword, sessionData)
+        .compose(verification -> {
+          if (FALSE.equals(verification.getPasswordVerified())) {
+            return Future.succeededFuture(RenewResponse.builder()
+                .ok(FALSE)
+                .transactionDate(OffsetDateTime.now(clock))
+                .institutionId(institutionId)
+                .screenMessage(verification.getErrorMessages())
+                .build());
+          }
+
+          final User user = verification.getUser();
+          final JsonObject body = new JsonObject()
+              .put("servicePointId", sessionData.getScLocation());
+
+          final Map<String, String> headers = getBaseHeaders();
+
+          final RenewalRequestData renewalRequestData =
+              new RenewalRequestData(body, headers, sessionData);
+
+          final Future<IResource> result = resourceProvider.createResource(renewalRequestData);
+
+          return result
+              .otherwise(Utils::handleErrors)
+              .map(resource -> {
+                final Optional<JsonObject> response = Optional.ofNullable(resource.getResource());
+
+                return RenewResponse.builder()
+                    .ok(Boolean.valueOf(response.isPresent()))
+                    .transactionDate(OffsetDateTime.now(clock))
+                    .institutionId(institutionId)
+                    .screenMessage(Optional.of(resource.getErrorMessages())
+                        .filter(v -> !v.isEmpty())
+                        .orElse(null))
+                    .build();
+              });
+        });
+  }
+
+  RenewAllResponseBuilder doRenewals(JsonObject jo, RenewAllResponseBuilder builder) {
+    log.debug(jo.toString());
+    return builder;
+  }
+
+  /**
+   * Perform a renewal for all items on customer account.
+   *
+   * @param renewAll the checkout domain object
+   * @return the renewal response domain object
+   */
+  public Future<RenewAllResponse> performRenewAllCommand(RenewAll renewAll,
+      SessionData sessionData) {
+    final String institutionId = renewAll.getInstitutionId();
+    final String patronIdentifier = renewAll.getPatronIdentifier();
+    final String patronPassword = renewAll.getPatronPassword();
+
+    List<String> emptyItems = new ArrayList<String>();
+
+    return passwordVerifier.verifyPatronPassword(patronIdentifier, patronPassword, sessionData)
+        .compose(verification -> {
+          if (FALSE.equals(verification.getPasswordVerified())) {
+            return Future.succeededFuture(RenewAllResponse.builder()
+                .ok(FALSE)
+                .transactionDate(OffsetDateTime.now(clock))
+                .institutionId(institutionId)
+                .renewedCount(0)
+                .unrenewedCount(0)
+                .renewedItems(emptyItems)
+                .unrenewedItems(emptyItems)
+                .screenMessage(verification.getErrorMessages())
+                .build());
+          }
+
+          final User user = verification.getUser();
+          final JsonObject body = new JsonObject()
+              .put("servicePointId", sessionData.getScLocation());
+
+          final Map<String, String> headers = getBaseHeaders();
+          // Assume a sensible limit, or rewrite this method
+          final Future<JsonObject> loansFuture =
+              getLoansByUserId(user.getId(), null, null, sessionData);
+          
+          final RenewAllResponseBuilder builder = RenewAllResponse.builder();
+
+
+          loansFuture
+              .map(loans -> doRenewals(loans, builder));
+
+          final RenewalRequestData renewalRequestData =
+              new RenewalRequestData(body, headers, sessionData);
+
+          final Future<IResource> result = resourceProvider.createResource(renewalRequestData);
+
+          return result
+              .otherwise(Utils::handleErrors)
+              .map(resource -> {
+                final Optional<JsonObject> response = Optional.ofNullable(resource.getResource());
+
+                return RenewAllResponse.builder()
+                    .ok(Boolean.valueOf(response.isPresent()))
+                    .transactionDate(OffsetDateTime.now(clock))
+                    .institutionId(institutionId)
+                    .renewedCount(0)
+                    .unrenewedCount(0)
+                    .renewedItems(emptyItems)
+                    .unrenewedItems(emptyItems)
+                    .screenMessage(Optional.of(resource.getErrorMessages())
+                        .filter(v -> !v.isEmpty())
+                        .orElse(null))
+                    .build();
+              });
+        });
+  }
+
+  /**
    * Get requests for the specified patron.
    *
    * @param userId the FOLIO ID of the patron
-   * @param requestType The request type to filter onaaaaaaaaaaaaaaaaa
+   * @param requestType The request type to filter on
+   * @param requestStatus The request status list to filter on
    * @param startItem the first item to return
    * @param endItem the last item to return
    * @param sessionData session data
    * @return the requests the patron has placed
    */
   public Future<JsonObject> getRequestsByUserId(String userId, String requestType,
+      ArrayList<RequestStatus> requestStatus,
       Integer startItem, Integer endItem, SessionData sessionData) {
     final Map<String, String> headers = getBaseHeaders();
 
     final RequestsRequestData requestsRequestData = new RequestsRequestData("requesterId", userId,
-        requestType, startItem, endItem, headers, sessionData);
+        requestType, requestStatus, startItem, endItem, headers, sessionData);
     final Future<IResource> result = resourceProvider.retrieveResource(requestsRequestData);
 
     return result.otherwise(() -> null).map(IResource::getResource);
@@ -241,9 +378,15 @@ public class CirculationRepository {
   public Future<JsonObject> getRequestsByItemId(String itemId, String requestType,
       Integer startItem, Integer endItem, SessionData sessionData) {
     final Map<String, String> headers = getBaseHeaders();
+    final ArrayList<RequestStatus> requestStatus = new ArrayList<RequestStatus>();
+    requestStatus.add(RequestStatus.OPEN_AWAITING_DELIVERY);
+    requestStatus.add(RequestStatus.OPEN_AWAITING_PICKUP);
+    requestStatus.add(RequestStatus.OPEN_IN_TRANSIT);
+    requestStatus.add(RequestStatus.OPEN_NOT_YET_FILLED);
+    
 
     final RequestsRequestData requestsRequestData = new RequestsRequestData("itemId", itemId,
-        requestType, startItem, endItem, headers, sessionData);
+        requestType, requestStatus, startItem, endItem, headers, sessionData);
     final Future<IResource> result = resourceProvider.retrieveResource(requestsRequestData);
 
     return result.otherwise(() -> null).map(IResource::getResource);
@@ -377,15 +520,29 @@ public class CirculationRepository {
     }
   }
 
+  private class RenewalRequestData extends CirculationRequestData {
+    private RenewalRequestData(JsonObject body, Map<String, String> headers,
+        SessionData sessionData) {
+      super(body, null, null, headers, sessionData);
+    }
+
+    @Override
+    public String getPath() {
+      return "/circulation/renew-by-barcode";
+    }
+  }
+
   private class RequestsRequestData extends CirculationRequestData {
     private final String idField;
     private final String idValue;
     private final String requestType;
+    private final ArrayList<RequestStatus> requestStatus;
 
     private RequestsRequestData(
         String idField,
         String idValue,
         String requestType,
+        ArrayList<RequestStatus> requestStatus,
         Integer startItem,
         Integer endItem,
         Map<String, String> headers,
@@ -394,6 +551,7 @@ public class CirculationRepository {
       this.idField = idField;
       this.idValue = idValue;
       this.requestType = requestType;
+      this.requestStatus = requestStatus;
     }
 
     @Override
@@ -402,11 +560,20 @@ public class CirculationRepository {
           .append("(")
           .append(idField)
           .append("==")
-          .append(idValue)
-          .append(" and status=Open");
-      if (requestType != null) {
-        qSb.append(" and requestType==").append(requestType);
+          .append(idValue);
+      qSb.append(" and (");
+      for (int i = 0;i < requestStatus.size();i++) {
+        if (i > 0) {
+          qSb.append(" or ");
+        }
+        qSb.append("status==\"" + requestStatus.get(i).getValue() + "\"");
       }
+      // TODO: Spokane Public treats all requests types a-like,
+      // we will need a config option for this
+      // if (requestType != null) {
+      //   qSb.append(" and requestType==").append(requestType);
+      // }
+      qSb.append(')');
       qSb.append(')');
       final StringBuilder urlSb = new StringBuilder()
           .append("/circulation/requests?query=")

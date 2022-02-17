@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;  
+import java.util.regex.Pattern;  
 import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -173,7 +175,7 @@ public class FeeFinesRepository {
     private final String amount;
     private final Boolean notifyPatron;
     private final String paymentMethod;
-    private final List<String> accounts;
+    private final String account;
     private final Map<String, String> headers;
     private final SessionData sessionData;
 
@@ -181,19 +183,20 @@ public class FeeFinesRepository {
         String amount,
         String paymentMethod,
         Boolean notifyPatron,
-        List<String> accounts,
+        String account,
         Map<String, String> headers,
         SessionData sessionData) {
       this.amount = amount;
       this.notifyPatron = notifyPatron; 
       this.paymentMethod = paymentMethod; 
-      this.accounts = accounts;
+      this.account = account;
       this.headers = Collections.unmodifiableMap(new HashMap<>(headers));
       this.sessionData = sessionData;
     }
     
     public String getPath() {
-      return "/accounts-bulk/pay";
+
+      return "/accounts/" + account + "/pay";
     }
 
     public Map<String, String> getHeaders() {
@@ -207,7 +210,6 @@ public class FeeFinesRepository {
           .put("amount", amount)
           //.put("comments", itemIdentifier)
           //.put("transactionInfo", feeIdentifier)
-          .put("accountIds", accounts)
           .put("notifyPatron", notifyPatron)
           .put("servicePointId", sessionData.getScLocation())
           .put("userName", sessionData.getUsername())
@@ -232,10 +234,22 @@ public class FeeFinesRepository {
     // information, so we'll need to use the tenant/SC timezone as the basis and convert to UTC.
     // final String scLocation = sessionData.getScLocation();
     final String institutionId = feePaid.getInstitutionId();
-    //final String feeIdentifier = feePaid.getFeeIdentifier();
     final String patronIdentifier = feePaid.getPatronIdentifier();
     final String transactionId = feePaid.getTransactionId();
     final Float amountPaid = Float.valueOf(feePaid.getFeeAmount());
+    
+    Pattern startWithUuid = Pattern.compile("^(\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})"); 
+    // UUID of the account to be paid
+    log.debug("FeeIdentifier CG: {}", () -> feePaid.getFeeIdentifier());
+    Matcher matcher = startWithUuid.matcher(feePaid.getFeeIdentifier());  
+    log.debug("FeeIdentifier match count : {}", () -> matcher.groupCount());
+    log.debug("FeeIdentifier matcher : {}", () -> matcher.toString());
+    String feeIdentifierMatch = "no match";
+    if (matcher.find()) { 
+      feeIdentifierMatch = matcher.group(1);
+    }
+    final String feeIdentifier = feeIdentifierMatch;
+    log.debug("FeeIdentifier match: {}", () -> feeIdentifier);
 
     // This may need to be changed to passwordVerifier - GDG
     return usersRepository.getUserById(patronIdentifier, sessionData)
@@ -257,8 +271,8 @@ public class FeeFinesRepository {
               log.debug("accts: {}", () -> accts);
               final JsonArray acctList = accts.getJsonArray("accounts");
               Float acctTotal = totalAmount(acctList);
-              log.info("amountPaid: {}", () -> amountPaid);
-              log.info("remainingTotal: {}", () -> acctTotal);
+              log.debug("amountPaid: {}", () -> amountPaid);
+              log.debug("remainingTotal: {}", () -> acctTotal);
               // On overpayment return a FALSE Payment Accepted
               
               NumberFormat formatter = new DecimalFormat("0.00");
@@ -286,7 +300,7 @@ public class FeeFinesRepository {
                   feePaid.getFeeAmount(),
                   "Credit Card", // TODO - Default PaymentMethod
                   TRUE, // TODO - Default Notify
-                  acctIdList,
+                  feeIdentifier,
                   headers,
                   sessionData);
 

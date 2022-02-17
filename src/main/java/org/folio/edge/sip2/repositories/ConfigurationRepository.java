@@ -166,6 +166,8 @@ public class ConfigurationRepository {
 
   private void addTenantConfig(JsonObject config, SessionData sessionData,
       ACSStatusBuilder builder) {
+    log.debug("patronPasswordVerificationRequired: {}", 
+        config.getBoolean("patronPasswordVerificationRequired config", Boolean.FALSE));
     if (config != null) {
       builder.onLineStatus(true);
       builder.statusUpdateOk(config.getBoolean("statusUpdateOk"));
@@ -174,7 +176,7 @@ public class ConfigurationRepository {
       builder.supportedMessages(getSupportedMessagesFromJson(
           config.getJsonArray("supportedMessages")));
       sessionData.setPatronPasswordVerificationRequired(
-          config.getBoolean("patronPasswordVerificationRequired", Boolean.FALSE));
+          config.getBoolean("patronPasswordVerificationRequired", Boolean.TRUE));
     }
   }
 

@@ -8,6 +8,8 @@ import static org.folio.edge.sip2.parser.Command.ITEM_INFORMATION_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.LOGIN_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.PATRON_INFORMATION_RESPONSE;
 import static org.folio.edge.sip2.parser.Command.PATRON_STATUS_RESPONSE;
+import static org.folio.edge.sip2.parser.Command.RENEW_ALL_RESPONSE;
+import static org.folio.edge.sip2.parser.Command.RENEW_RESPONSE;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -56,6 +58,18 @@ public class ApplicationModule extends AbstractModule {
   @Named("checkinResponse")
   Template provideCheckinResponseTemplate() {
     return FreemarkerRepository.getInstance().getFreemarkerTemplate(CHECKIN_RESPONSE);
+  }
+
+  @Provides
+  @Named("renewResponse")
+  Template renewResponseTemplate() {
+    return FreemarkerRepository.getInstance().getFreemarkerTemplate(RENEW_RESPONSE);
+  }
+
+  @Provides
+  @Named("renewAllResponse")
+  Template renewAllResponseTemplate() {
+    return FreemarkerRepository.getInstance().getFreemarkerTemplate(RENEW_ALL_RESPONSE);
   }
 
   @Provides

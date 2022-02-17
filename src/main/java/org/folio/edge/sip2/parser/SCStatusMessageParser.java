@@ -44,7 +44,7 @@ public class SCStatusMessageParser extends MessageParser {
     position += 3;
     Integer maxPrintWidth;
     try {
-      maxPrintWidth = Integer.valueOf(maxPrintWidthString);
+      maxPrintWidth = Integer.valueOf(maxPrintWidthString.trim());
     } catch (NumberFormatException e) {
       log.error("Max print width {} outside 000-999 range, defaulting to {}",
           maxPrintWidthString, DEFAULT_MAX_PRINT_WIDTH);

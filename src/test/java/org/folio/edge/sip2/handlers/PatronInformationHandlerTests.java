@@ -17,6 +17,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -49,8 +50,12 @@ public class PatronInformationHandlerTests {
     final String homeAddress = "1234 Fake St., Anytown US";
     final String emailAddress = "jdoe@example.com";
     final String homePhoneNumber = "555-1234";
+    final String patronLoanClass = "UUID Patron Group";
+    final OffsetDateTime patronBirthDate = OffsetDateTime.now().minusHours(8);
     final String screenMessage = "This is a screen message";
     final String printLine = "This is a print line";
+    DateTimeFormatter birthDateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+    final String formattedBirthDate = patronBirthDate.format(birthDateFormatter);
     final PatronInformation patronInformation = PatronInformation.builder()
         .language(ENGLISH)
         .transactionDate(OffsetDateTime.now(clock))
@@ -91,6 +96,8 @@ public class PatronInformationHandlerTests {
             .recallItems(Collections.emptyList())
             .unavailableHoldItems(Collections.emptyList())
             .homeAddress(homeAddress)
+            .patronLoanClass(patronLoanClass)
+            .patronBirthDate(patronBirthDate)
             .emailAddress(emailAddress)
             .homePhoneNumber(homePhoneNumber)
             .screenMessage(Arrays.asList(screenMessage))
@@ -111,6 +118,7 @@ public class PatronInformationHandlerTests {
               + String.format("AO%s|AA%s|AE%s|BLY|", institutionId, patronIdentifier, personalName)
               + String.format("AS%s|AS%s|AS%s|", holdItems.toArray(new Object[holdItems.size()]))
               + String.format("BD%s|BE%s|BF%s|", homeAddress, emailAddress, homePhoneNumber)
+              + String.format("PC%s|PB%s|", patronLoanClass, formattedBirthDate)
               + String.format("AF%s|AG%s|", screenMessage, printLine);
 
           assertEquals(expectedString, sipMessage);

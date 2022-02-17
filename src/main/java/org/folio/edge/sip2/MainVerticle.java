@@ -9,6 +9,8 @@ import static org.folio.edge.sip2.parser.Command.ITEM_INFORMATION;
 import static org.folio.edge.sip2.parser.Command.LOGIN;
 import static org.folio.edge.sip2.parser.Command.PATRON_INFORMATION;
 import static org.folio.edge.sip2.parser.Command.PATRON_STATUS_REQUEST;
+import static org.folio.edge.sip2.parser.Command.RENEW;
+import static org.folio.edge.sip2.parser.Command.RENEW_ALL;
 import static org.folio.edge.sip2.parser.Command.REQUEST_ACS_RESEND;
 import static org.folio.edge.sip2.parser.Command.REQUEST_SC_RESEND;
 import static org.folio.edge.sip2.parser.Command.SC_STATUS;
@@ -45,6 +47,8 @@ import org.folio.edge.sip2.handlers.ItemInformationHandler;
 import org.folio.edge.sip2.handlers.LoginHandler;
 import org.folio.edge.sip2.handlers.PatronInformationHandler;
 import org.folio.edge.sip2.handlers.PatronStatusHandler;
+import org.folio.edge.sip2.handlers.RenewAllHandler;
+import org.folio.edge.sip2.handlers.RenewHandler;
 import org.folio.edge.sip2.metrics.Metrics;
 import org.folio.edge.sip2.modules.ApplicationModule;
 import org.folio.edge.sip2.modules.FolioResourceProviderModule;
@@ -101,6 +105,8 @@ public class MainVerticle extends AbstractVerticle {
       handlers.put(PATRON_STATUS_REQUEST, injector.getInstance(PatronStatusHandler.class));
       handlers.put(FEE_PAID, injector.getInstance(FeePaidHandler.class));
       handlers.put(ITEM_INFORMATION, injector.getInstance(ItemInformationHandler.class));
+      handlers.put(RENEW,  injector.getInstance(RenewHandler.class));
+      handlers.put(RENEW_ALL,  injector.getInstance(RenewAllHandler.class));
       handlers.put(REQUEST_SC_RESEND, HandlersFactory.getInvalidMessageHandler());
       handlers.put(END_PATRON_SESSION, injector.getInstance(EndPatronSessionHandler.class));
     }
@@ -131,7 +137,8 @@ public class MainVerticle extends AbstractVerticle {
           tenantConfig.getBoolean("errorDetectionEnabled", FALSE),
           tenantConfig.getString("charset", "IBM850"));
       sessionData.setTimeZone(defaultTimezone);
-      //log.warn("t: {}",tenantConfig);
+      log.debug("t: {}",tenantConfig);
+      log.debug("CLient IP {}", clientAddress);
       final String messageDelimiter = tenantConfig.getString("messageDelimiter", "\r");
       socket.handler(RecordParser.newDelimited(messageDelimiter, buffer -> {
         final Timer.Sample sample = metrics.sample();
@@ -143,7 +150,7 @@ public class MainVerticle extends AbstractVerticle {
 
         final String messageString = buffer.getString(0, buffer.length(), sessionData.getCharset());
 
-        log.debug("Received message: {}", messageString);
+        log.info("Received message: {}", messageString);
 
         Command command = UNKNOWN;
 

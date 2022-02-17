@@ -42,7 +42,7 @@ public class PasswordVerifier {
     Objects.requireNonNull(sessionData, "sessionData cannot be null");
 
     final Future<PatronPasswordVerificationRecords> loginFuture;
-
+    
     if (sessionData.isPatronPasswordVerificationRequired()) {
       loginFuture = usersRepository.getUserById(patronIdentifier, sessionData)
           .compose(user -> {

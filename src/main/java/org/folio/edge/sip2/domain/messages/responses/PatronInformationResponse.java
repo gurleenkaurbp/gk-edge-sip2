@@ -121,6 +121,10 @@ public final class PatronInformationResponse {
   private final String emailAddress;
   /** The home phone number for the patron. */
   private final String homePhoneNumber;
+  /** The patron Group/Type/Class. */
+  private final String patronLoanClass;
+  /** The birthdate for the patron. */
+  private final OffsetDateTime patronBirthDate;
   /** A message to show to the patron on the SC screen. */
   private final List<String> screenMessage;
   /** A message to print for the patron on the SC printer. */
@@ -182,6 +186,8 @@ public final class PatronInformationResponse {
     this.homeAddress = builder.homeAddress;
     this.emailAddress = builder.emailAddress;
     this.homePhoneNumber = builder.homePhoneNumber;
+    this.patronLoanClass = builder.patronLoanClass;
+    this.patronBirthDate = builder.patronBirthDate;
     this.screenMessage = builder.screenMessage == null ? null
         : Collections.unmodifiableList(new ArrayList<>(builder.screenMessage));
     this.printLine = builder.printLine == null ? null
@@ -312,6 +318,14 @@ public final class PatronInformationResponse {
     return homePhoneNumber;
   }
 
+  public String getPatronLoanClass() {
+    return patronLoanClass;
+  }
+
+  public OffsetDateTime getPatronBirthDate() {
+    return patronBirthDate;
+  }
+  
   public List<String> getScreenMessage() {
     return screenMessage;
   }
@@ -326,7 +340,8 @@ public final class PatronInformationResponse {
         currencyType, emailAddress, feeAmount, feeLimit, fineItems,
         fineItemsCount, holdItems, holdItemsCount, holdItemsLimit,
         homeAddress, homePhoneNumber, institutionId, language, overdueItems,
-        overdueItemsCount, overdueItemsLimit, patronIdentifier, patronStatus,
+        overdueItemsCount, overdueItemsLimit, patronBirthDate, patronIdentifier,
+        patronLoanClass, patronStatus,
         personalName, printLine, recallItems, recallItemsCount, screenMessage,
         transactionDate, unavailableHoldItems, unavailableHoldsCount,
         validPatron, validPatronPassword);
@@ -369,6 +384,8 @@ public final class PatronInformationResponse {
         && Objects.equals(printLine, other.printLine)
         && Objects.equals(recallItems, other.recallItems)
         && Objects.equals(recallItemsCount, other.recallItemsCount)
+        && Objects.equals(patronLoanClass, other.patronLoanClass)
+        && Objects.equals(patronBirthDate, other.patronBirthDate)
         && Objects.equals(screenMessage, other.screenMessage)
         && Objects.equals(transactionDate, other.transactionDate)
         && Objects.equals(unavailableHoldItems, other.unavailableHoldItems)
@@ -407,6 +424,8 @@ public final class PatronInformationResponse {
         .append(", recallItems=").append(recallItems)
         .append(", unavailableHoldItems=").append(unavailableHoldItems)
         .append(", homeAddress=").append(homeAddress)
+        .append(", patronLoanClass=").append(patronLoanClass)
+        .append(", patronBirthDate=").append(patronBirthDate)
         .append(", emailAddress=").append(emailAddress)
         .append(", homePhoneNumber=").append(homePhoneNumber)
         .append(", screenMessage=").append(screenMessage)
@@ -447,6 +466,8 @@ public final class PatronInformationResponse {
     private String homeAddress;
     private String emailAddress;
     private String homePhoneNumber;
+    private String patronLoanClass;
+    private OffsetDateTime patronBirthDate;
     private List<String> screenMessage;
     private List<String> printLine;
 
@@ -608,6 +629,7 @@ public final class PatronInformationResponse {
       return this;
     }
 
+
     public PatronInformationResponseBuilder emailAddress(String emailAddress) {
       this.emailAddress = emailAddress;
       return this;
@@ -616,6 +638,18 @@ public final class PatronInformationResponse {
     public PatronInformationResponseBuilder homePhoneNumber(
         String homePhoneNumber) {
       this.homePhoneNumber = homePhoneNumber;
+      return this;
+    }
+    
+    public PatronInformationResponseBuilder patronLoanClass(
+        String patronLoanClass) {
+      this.patronLoanClass = patronLoanClass;
+      return this;
+    }
+
+    public PatronInformationResponseBuilder patronBirthDate(
+        OffsetDateTime patronBirthDate) {
+      this.patronBirthDate = patronBirthDate;
       return this;
     }
 

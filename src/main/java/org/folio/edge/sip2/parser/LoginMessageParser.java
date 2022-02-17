@@ -35,7 +35,7 @@ public final class LoginMessageParser extends MessageParser {
 
     // UID algorithm: 1-char, fixed-length required field
     final char uidAlgorithm = messageChars[position++];
-    if (uidAlgorithm == '0') {
+    if (uidAlgorithm == '0' || uidAlgorithm == ' ') {
       builder.uidAlgorithm(UIDAlgorithm.NO_ENCRYPTION);
     } else {
       log.warn("Unknown UID algorithm {}", valueOf(uidAlgorithm));
@@ -43,7 +43,7 @@ public final class LoginMessageParser extends MessageParser {
 
     // PWD algorithm: 1-char, fixed-length required field
     final char pwdAlgorithm = messageChars[position++];
-    if (pwdAlgorithm == '0') {
+    if (pwdAlgorithm == '0' || pwdAlgorithm == ' ') {
       builder.pwdAlgorithm(PWDAlgorithm.NO_ENCRYPTION);
     } else {
       log.warn("Unknown PWD algorithm {}", valueOf(pwdAlgorithm));

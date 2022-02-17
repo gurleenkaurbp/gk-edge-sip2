@@ -56,6 +56,8 @@ public class FolioResourceProvider implements IResourceProvider<IRequestData> {
     final HttpRequest<Buffer> request =
         client.getAbs(okapiUrl + requestData.getPath());
 
+    log.info("QS: {}", request.queryParams());
+
     setHeaders(requestData.getHeaders(), request,
         Objects.requireNonNull(requestData.getSessionData(), "SessionData cannot be null"));
 
@@ -139,7 +141,7 @@ public class FolioResourceProvider implements IResourceProvider<IRequestData> {
 
       future.complete(new FolioResource(ar.result().body(), ar.result().headers()));
     } else {
-      log.error("Request failed", ar.cause());
+      log.error("Request failed {}: ", ar.cause());
       future.fail(ar.cause());
     }
   }

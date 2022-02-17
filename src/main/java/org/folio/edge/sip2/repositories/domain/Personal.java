@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.folio.edge.sip2.utils.Utils;
 
 @JsonDeserialize(builder = Personal.Builder.class)
 public class Personal {
@@ -16,6 +18,7 @@ public class Personal {
   private final List<Address> addresses;
   private final String email;
   private final String phone;
+  private final OffsetDateTime dateOfBirth;
 
   private Personal(Builder builder) {
     firstName = builder.firstName;
@@ -25,6 +28,7 @@ public class Personal {
       Collections.unmodifiableList(new ArrayList<>(builder.addresses));
     email = builder.email;
     phone = builder.phone;
+    dateOfBirth = builder.dateOfBirth;
   }
 
   public String getFirstName() {
@@ -51,6 +55,10 @@ public class Personal {
     return phone;
   }
 
+  public OffsetDateTime getDateOfBirth() {
+    return dateOfBirth;
+  }
+
   @JsonIgnoreProperties(ignoreUnknown = true)
   @JsonPOJOBuilder
   public static class Builder {
@@ -60,6 +68,7 @@ public class Personal {
     private List<Address> addresses;
     private String email;
     private String phone;
+    private OffsetDateTime dateOfBirth;
 
     @JsonProperty
     public Builder firstName(String firstName) {
@@ -94,6 +103,12 @@ public class Personal {
     @JsonProperty
     public Builder phone(String phone) {
       this.phone = phone;
+      return this;
+    }
+
+    @JsonProperty
+    public Builder dateOfBirth(String dateOfBirth) {
+      this.dateOfBirth = OffsetDateTime.from(Utils.getFolioDateTimeFormatter().parse(dateOfBirth));
       return this;
     }
 

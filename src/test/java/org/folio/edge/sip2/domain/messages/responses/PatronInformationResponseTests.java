@@ -61,6 +61,8 @@ class PatronInformationResponseTests {
       "unavailableHolds2", "unavailableHolds3", "unavailableHolds4",
       "unavailableHolds5", "unavailableHolds6");
   final String homeAddress = "123 Fake St. Anytown, USA";
+  final String patronLoanClass = "A Patron Group UUID";
+  final OffsetDateTime patronBirthDate = OffsetDateTime.now();
   final String emailAddress = "folio@example.com";
   final String homePhoneNumber = "555-1212";
   final List<String> screenMessage = asList("Hello, world!");
@@ -98,6 +100,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -134,6 +138,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -170,6 +176,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -208,6 +216,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -246,6 +256,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -284,6 +296,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -322,6 +336,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -360,6 +376,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -398,6 +416,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -436,6 +456,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -474,6 +496,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -512,6 +536,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -550,6 +576,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -588,6 +616,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -626,6 +656,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -664,6 +696,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -702,6 +736,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -740,6 +776,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -776,6 +814,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -812,6 +852,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -850,6 +892,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -888,6 +932,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -926,6 +972,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -964,6 +1012,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -1002,6 +1052,8 @@ class PatronInformationResponseTests {
     assertEquals(recallItems, pir.getRecallItems());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -1040,6 +1092,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertEquals(unavailableHoldItems, pir.getUnavailableHoldItems());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -1078,6 +1132,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertEquals(homeAddress, pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -1116,6 +1172,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertEquals(emailAddress, pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -1154,6 +1212,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertEquals(homePhoneNumber, pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -1192,6 +1252,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertEquals(screenMessage, pir.getScreenMessage());
@@ -1230,6 +1292,8 @@ class PatronInformationResponseTests {
     assertTrue(pir.getRecallItems().isEmpty());
     assertTrue(pir.getUnavailableHoldItems().isEmpty());
     assertNull(pir.getHomeAddress());
+    assertNull(pir.getPatronLoanClass());
+    assertNull(pir.getPatronBirthDate());
     assertNull(pir.getEmailAddress());
     assertNull(pir.getHomePhoneNumber());
     assertNull(pir.getScreenMessage());
@@ -1266,6 +1330,8 @@ class PatronInformationResponseTests {
         .recallItems(recallItems)
         .unavailableHoldItems(unavailableHoldItems)
         .homeAddress(homeAddress)
+        .patronLoanClass(patronLoanClass)
+        .patronBirthDate(patronBirthDate)
         .emailAddress(emailAddress)
         .homePhoneNumber(homePhoneNumber)
         .screenMessage(screenMessage)
@@ -1300,6 +1366,8 @@ class PatronInformationResponseTests {
         () -> assertEquals(recallItems, pir.getRecallItems()),
         () -> assertEquals(unavailableHoldItems, pir.getUnavailableHoldItems()),
         () -> assertEquals(homeAddress, pir.getHomeAddress()),
+        () -> assertEquals(patronLoanClass, pir.getPatronLoanClass()),
+        () -> assertEquals(patronBirthDate, pir.getPatronBirthDate()),
         () -> assertEquals(emailAddress, pir.getEmailAddress()),
         () -> assertEquals(homePhoneNumber, pir.getHomePhoneNumber()),
         () -> assertEquals(screenMessage, pir.getScreenMessage()),
@@ -1337,6 +1405,8 @@ class PatronInformationResponseTests {
         .recallItems(recallItems)
         .unavailableHoldItems(unavailableHoldItems)
         .homeAddress(homeAddress)
+        .patronLoanClass(patronLoanClass)
+        .patronBirthDate(patronBirthDate)
         .emailAddress(emailAddress)
         .homePhoneNumber(homePhoneNumber)
         .screenMessage(screenMessage)
@@ -1370,6 +1440,8 @@ class PatronInformationResponseTests {
         .recallItems(recallItems)
         .unavailableHoldItems(unavailableHoldItems)
         .homeAddress(homeAddress)
+        .patronLoanClass(patronLoanClass)
+        .patronBirthDate(patronBirthDate)
         .emailAddress(emailAddress)
         .homePhoneNumber(homePhoneNumber)
         .screenMessage(screenMessage)
@@ -1409,6 +1481,8 @@ class PatronInformationResponseTests {
         .recallItems(recallItems)
         .unavailableHoldItems(unavailableHoldItems)
         .homeAddress(homeAddress)
+        .patronLoanClass(patronLoanClass)
+        .patronBirthDate(patronBirthDate)
         .emailAddress(emailAddress)
         .homePhoneNumber(homePhoneNumber)
         .screenMessage(screenMessage)
@@ -1446,6 +1520,8 @@ class PatronInformationResponseTests {
             "recall5"))
         .unavailableHoldItems(asList("unavailableHoldItems1"))
         .homeAddress("8672 Evergreen Terrace, Springfield USA")
+        .patronLoanClass("Main Users")
+        .patronBirthDate(OffsetDateTime.now())
         .emailAddress("admin@example.com")
         .homePhoneNumber("555-5555")
         .screenMessage(asList("Welcome to the jungle."))
@@ -1485,6 +1561,8 @@ class PatronInformationResponseTests {
         .append(", recallItems=").append(recallItems)
         .append(", unavailableHoldItems=").append(unavailableHoldItems)
         .append(", homeAddress=").append(homeAddress)
+        .append(", patronLoanClass=").append(patronLoanClass)
+        .append(", patronBirthDate=").append(patronBirthDate)
         .append(", emailAddress=").append(emailAddress)
         .append(", homePhoneNumber=").append(homePhoneNumber)
         .append(", screenMessage=").append(screenMessage)
@@ -1518,6 +1596,8 @@ class PatronInformationResponseTests {
         .recallItems(recallItems)
         .unavailableHoldItems(unavailableHoldItems)
         .homeAddress(homeAddress)
+        .patronLoanClass(patronLoanClass)
+        .patronBirthDate(patronBirthDate)
         .emailAddress(emailAddress)
         .homePhoneNumber(homePhoneNumber)
         .screenMessage(screenMessage)

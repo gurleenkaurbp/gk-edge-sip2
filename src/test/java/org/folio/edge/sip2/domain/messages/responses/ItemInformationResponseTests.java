@@ -45,6 +45,8 @@ class ItemInformationResponseTests {
   final String permanentLocation = "circ_desk";
   final String currentLocation = "another_circ_desk";
   final String itemProperties = "Directors Cut";
+  final String holdPatronId = "Very Id ";
+  final String holdPatronName = "Very Name";
   final List<String> screenMessage = asList("Please rewind");
   final List<String> printLine = asList("Enjoy!");
 
@@ -70,6 +72,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -96,6 +100,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -120,6 +126,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -146,6 +154,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -172,6 +182,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -196,6 +208,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -222,6 +236,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -248,6 +264,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -274,6 +292,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -300,6 +320,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -324,6 +346,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -350,6 +374,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -374,6 +400,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -398,6 +426,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -424,6 +454,8 @@ class ItemInformationResponseTests {
     assertEquals(permanentLocation, iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -450,6 +482,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertEquals(currentLocation, iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -476,6 +510,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertEquals(itemProperties, iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -500,6 +536,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertEquals(screenMessage, iir.getScreenMessage());
     assertNull(iir.getPrintLine());
   }
@@ -524,6 +562,8 @@ class ItemInformationResponseTests {
     assertNull(iir.getPermanentLocation());
     assertNull(iir.getCurrentLocation());
     assertNull(iir.getItemProperties());
+    assertNull(iir.getHoldPatronId());
+    assertNull(iir.getHoldPatronName());
     assertNull(iir.getScreenMessage());
     assertEquals(printLine, iir.getPrintLine());
   }
@@ -548,6 +588,8 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .holdPatronId(holdPatronId)
+        .holdPatronName(holdPatronName)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -569,6 +611,8 @@ class ItemInformationResponseTests {
         () -> assertEquals(permanentLocation, iir.getPermanentLocation()),
         () -> assertEquals(currentLocation, iir.getCurrentLocation()),
         () -> assertEquals(itemProperties, iir.getItemProperties()),
+        () -> assertEquals(holdPatronId, iir.getHoldPatronId()),
+        () -> assertEquals(holdPatronName, iir.getHoldPatronName()),
         () -> assertEquals(screenMessage, iir.getScreenMessage()),
         () -> assertEquals(printLine, iir.getPrintLine())
     );
@@ -594,6 +638,8 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .holdPatronId(holdPatronId)
+        .holdPatronName(holdPatronName)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -615,6 +661,8 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .holdPatronId(holdPatronId)
+        .holdPatronName(holdPatronName)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -642,6 +690,8 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .holdPatronId(holdPatronId)
+        .holdPatronName(holdPatronName)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -663,6 +713,8 @@ class ItemInformationResponseTests {
         .permanentLocation("basement")
         .currentLocation("stolen")
         .itemProperties("Testing")
+        .holdPatronId("Other Id")
+        .holdPatronName("Other Name")
         .screenMessage(asList("This is a test"))
         .printLine(asList("This is a print test"))
         .build();
@@ -690,6 +742,8 @@ class ItemInformationResponseTests {
         .append(", permanentLocation=").append(permanentLocation)
         .append(", currentLocation=").append(currentLocation)
         .append(", itemProperties=").append(itemProperties)
+        .append(", holdPatronId=").append(holdPatronId)
+        .append(", holdPatronName=").append(holdPatronName)
         .append(", screenMessage=").append(screenMessage)
         .append(", printLine=").append(printLine)
         .append(']').toString();
@@ -711,6 +765,8 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .holdPatronId(holdPatronId)
+        .holdPatronName(holdPatronName)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();

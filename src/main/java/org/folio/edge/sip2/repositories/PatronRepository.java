@@ -6,17 +6,22 @@ import static org.folio.edge.sip2.domain.messages.enumerations.Language.UNKNOWN;
 import static org.folio.edge.sip2.domain.messages.enumerations.PatronStatus.HOLD_PRIVILEGES_DENIED;
 import static org.folio.edge.sip2.domain.messages.enumerations.PatronStatus.RECALL_PRIVILEGES_DENIED;
 import static org.folio.edge.sip2.domain.messages.enumerations.PatronStatus.RENEWAL_PRIVILEGES_DENIED;
+import static org.folio.edge.sip2.domain.messages.enumerations.Summary.CHARGED_ITEMS;
+import static org.folio.edge.sip2.domain.messages.enumerations.Summary.FINE_ITEMS;
 import static org.folio.edge.sip2.domain.messages.enumerations.Summary.HOLD_ITEMS;
 import static org.folio.edge.sip2.domain.messages.enumerations.Summary.OVERDUE_ITEMS;
 import static org.folio.edge.sip2.domain.messages.enumerations.Summary.RECALL_ITEMS;
+import static org.folio.edge.sip2.domain.messages.enumerations.Summary.UNAVAILABLE_HOLDS;
 import static org.folio.edge.sip2.utils.JsonUtils.getChildString;
 
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +36,7 @@ import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.edge.sip2.domain.messages.enumerations.PatronStatus;
+import org.folio.edge.sip2.domain.messages.enumerations.RequestStatus;
 import org.folio.edge.sip2.domain.messages.requests.EndPatronSession;
 import org.folio.edge.sip2.domain.messages.requests.PatronInformation;
 import org.folio.edge.sip2.domain.messages.requests.PatronStatusRequest;
@@ -43,6 +49,7 @@ import org.folio.edge.sip2.repositories.domain.Address;
 import org.folio.edge.sip2.repositories.domain.Personal;
 import org.folio.edge.sip2.repositories.domain.User;
 import org.folio.edge.sip2.session.SessionData;
+import org.folio.edge.sip2.utils.Utils;
 
 /**
  * Provides interaction with the patron required services. This repository is a go-between for
@@ -90,12 +97,15 @@ public class PatronRepository {
       SessionData sessionData) {
     Objects.requireNonNull(patronInformation, "patronInformation cannot be null");
     Objects.requireNonNull(sessionData, "sessionData cannot be null");
+    sessionData.setPatronPasswordVerificationRequired(TRUE);
 
     final String patronIdentifier = patronInformation.getPatronIdentifier();
     final String patronPassword = patronInformation.getPatronPassword();
 
     return passwordVerifier.verifyPatronPassword(patronIdentifier, patronPassword, sessionData)
         .compose(verification -> {
+          log.debug("isPatronPasswordVerificationRequired: {}",
+              sessionData.isPatronPasswordVerificationRequired());
           if (FALSE.equals(verification.getPasswordVerified())) {
             return invalidPatron(patronInformation, FALSE);
           }
@@ -114,14 +124,13 @@ public class PatronRepository {
                 return invalidPatron(patronInformation, verification.getPasswordVerified());
               }
 
-              return validPatron(userId, user.getPersonal(), patronInformation, sessionData,
+              return validPatron(userId, user, patronInformation, sessionData,
                   verification.getPasswordVerified());
             }
           });
         });
   }
 
-  
   /**
    * Perform patron information.
    *
@@ -136,6 +145,7 @@ public class PatronRepository {
 
     final String patronIdentifier = patronStatus.getPatronIdentifier();
     final String patronPassword = patronStatus.getPatronPassword();
+    sessionData.setPatronPasswordVerificationRequired(TRUE);
 
     return passwordVerifier.verifyPatronPassword(patronIdentifier, patronPassword, sessionData)
         .compose(verification -> {
@@ -191,29 +201,49 @@ public class PatronRepository {
           .build());
   }
 
-  private Future<PatronInformationResponse> validPatron(String userId, Personal personal,
+  private Future<PatronInformationResponse> validPatron(String userId, User user,
       PatronInformation patronInformation, SessionData sessionData, Boolean validPassword) {
     // Now that we have a valid patron, we can retrieve data from circulation
     final PatronInformationResponseBuilder builder = PatronInformationResponse.builder();
     // Store patron data in the builder
-    addPersonalData(personal, patronInformation.getPatronIdentifier(), builder);
+    addPersonalData(user.getPersonal(), patronInformation.getPatronIdentifier(), builder);
     final Integer startItem = patronInformation.getStartItem();
     final Integer endItem = patronInformation.getEndItem();
     // Get manual blocks data to build patron status
     final Future<PatronInformationResponseBuilder> manualBlocksFuture = feeFinesRepository
         .getManualBlocksByUserId(userId, sessionData)
         .map(blocks -> buildPatronStatus(blocks, builder));
+
+    
+    final ArrayList<RequestStatus> availableRequestStatus = new ArrayList<RequestStatus>();
+    availableRequestStatus.add(RequestStatus.OPEN_AWAITING_PICKUP);
+    
+    final ArrayList<RequestStatus> unAvailableRequestStatus = new ArrayList<RequestStatus>();
+    unAvailableRequestStatus.add(RequestStatus.OPEN_NOT_YET_FILLED);
+    unAvailableRequestStatus.add(RequestStatus.OPEN_AWAITING_DELIVERY);
+    unAvailableRequestStatus.add(RequestStatus.OPEN_IN_TRANSIT);
     // Get holds data (count and items) and store it in the builder
-    final Future<PatronInformationResponseBuilder> holdsFuture = circulationRepository
-        .getRequestsByUserId(userId, "Hold", startItem, endItem, sessionData).map(
-            holds -> addHolds(holds, patronInformation.getSummary() == HOLD_ITEMS, builder));
+    final Future<PatronInformationResponseBuilder> availableHoldsFuture = circulationRepository
+        .getRequestsByUserId(userId, "Hold", availableRequestStatus,
+            startItem, endItem, sessionData).map(
+              holds -> addHolds(holds, patronInformation.getSummary() == HOLD_ITEMS, builder));
+    final Future<PatronInformationResponseBuilder> unAvailableHoldsFuture = circulationRepository
+        .getRequestsByUserId(userId, "Hold", unAvailableRequestStatus,
+            startItem, endItem, sessionData).map(
+              holds -> addUnAvailableHolds(holds, 
+                  patronInformation.getSummary() == UNAVAILABLE_HOLDS, builder));
     // Get overdue loans data (count and items) and store it in the builder
     // Due date needs to be UTC since it is being used in CQL for time comparison in the DB.
     final Future<PatronInformationResponseBuilder> overdueFuture =
         circulationRepository.getOverdueLoansByUserId(userId, OffsetDateTime.now(clock),
-            startItem, endItem, sessionData).map(
-                overdues -> addOverdueItems(overdues,
-                    patronInformation.getSummary() == OVERDUE_ITEMS, builder));
+        startItem, endItem, sessionData).map(
+          overdues -> addOverdueItems(overdues,
+              patronInformation.getSummary() == OVERDUE_ITEMS, builder));
+    final Future<PatronInformationResponseBuilder> loansFuture =
+        circulationRepository.getLoansByUserId(userId,
+        startItem, endItem, sessionData).map(
+          loans -> addChargedItems(loans,
+              patronInformation.getSummary() == CHARGED_ITEMS, builder));
     // Get recalled items data (count and items) and store it in the builder
     final Future<PatronInformationResponseBuilder> recallsFuture =
         getRecalls(userId, sessionData).compose(recalls -> addRecalls(recalls, startItem, endItem,
@@ -222,23 +252,36 @@ public class PatronRepository {
     final Future<PatronInformationResponseBuilder> getFeeAmountFuture = 
         feeFinesRepository.getFeeAmountByUserId(userId, sessionData)
             .map(accounts -> { 
+              ;
               return totalAmount(accounts, builder);
             });
     // When all operations complete, build and return the final PatronInformationResponse
-    return CompositeFuture.all(
-      manualBlocksFuture, holdsFuture, overdueFuture, recallsFuture, getFeeAmountFuture)
-        .map(result -> builder
-            // Get tenant language from config along with the timezone
-            .language(patronInformation.getLanguage())
-            .transactionDate(OffsetDateTime.now(clock))
-            .chargedItemsCount(null)
-            .fineItemsCount(null)
-            .unavailableHoldsCount(null)
-            .institutionId(patronInformation.getInstitutionId())
-            .patronIdentifier(patronInformation.getPatronIdentifier())
-            .validPatron(TRUE)
-            .validPatronPassword(validPassword)
-            .build()
+    // TODO: removed recallsFuture temporarily, and commented out the future setup above
+    // fixing availabed/unavailable hold borked it
+    ArrayList<Future> futures = new ArrayList<Future>();
+    futures.add(manualBlocksFuture);
+    futures.add(availableHoldsFuture);
+    futures.add(unAvailableHoldsFuture);
+    futures.add(overdueFuture);
+    futures.add(loansFuture);
+    futures.add(recallsFuture);
+    futures.add(getFeeAmountFuture);
+    return CompositeFuture.all(futures)
+        .map(result -> { 
+              builder
+                // Get tenant language from config along with the timezone
+                .language(patronInformation.getLanguage())
+                .transactionDate(OffsetDateTime.now(clock))
+                .fineItemsCount(0)
+                .institutionId(patronInformation.getInstitutionId())
+                .patronLoanClass(user.getPatronGroup())
+                .patronBirthDate(user.getPersonal().getDateOfBirth())
+                .patronIdentifier(patronInformation.getPatronIdentifier())
+                .validPatron(TRUE)
+                .validPatronPassword(validPassword);
+              log.debug(builder.toString());
+              return builder.build();
+            }
         );
   }
 
@@ -267,7 +310,7 @@ public class PatronRepository {
             .institutionId(patronStatus.getInstitutionId())
             .patronIdentifier(patronStatus.getPatronIdentifier())
             .validPatron(TRUE)
-            .validPatronPassword(validPassword)
+            .validPatronPassword(TRUE)
             .build();
         }
     );
@@ -291,13 +334,35 @@ public class PatronRepository {
       PatronInformationResponseBuilder builder) {
     
     final JsonArray arr = jo.getJsonArray("accounts");
+    NumberFormat formatter = NumberFormat.getCurrencyInstance();
     Float total = 0.0f;
+    List<String> fineItems = new ArrayList<String>();
     for (int i = 0;i < arr.size();i++) {
       total += arr.getJsonObject(i).getFloat("remaining");
+      fineItems.add(" " + arr.getJsonObject(i).getString("id")
+          + " " + formatter.format(arr.getJsonObject(i).getFloat("remaining"))
+          + " \"" + arr.getJsonObject(i).getString("feeFineType")
+          + "\" " + (arr.getJsonObject(i).getString("title") == null ? "" 
+              : arr.getJsonObject(i).getString("title")));
     }
-    log.debug(total.toString());
-    return builder.feeAmount(total.toString());
+    builder.feeAmount(total.toString());
+    builder.fineItems(fineItems);
+    return builder; 
   }
+  
+  //   private PatronInformationResponseBuilder addFineItems(
+  //     JsonObject jo,
+  //     boolean todo,
+  //     PatronInformationResponseBuilder builder) {
+    
+  //   final JsonArray arr = jo.getJsonArray("accounts");
+  //   Float total = 0.0f;
+  //   for (int i = 0;i < arr.size();i++) {
+  //     total += arr.getJsonObject(i).getFloat("remaining");
+  //   }
+  //   log.debug(total.toString());
+  //   return builder.feeAmount(total.toString());
+  // }
 
   private Future<PatronInformationResponse> invalidPatron(
       PatronInformation patronInformation,
@@ -316,7 +381,7 @@ public class PatronRepository {
         .patronIdentifier(patronInformation.getPatronIdentifier())
         .personalName(patronInformation.getPatronIdentifier()) // required, using patron id for now
         .validPatron(FALSE)
-        .validPatronPassword(validPassword)
+        .validPatronPassword(FALSE)
         .screenMessage(Collections.singletonList(MESSAGE_INVALID_PATRON))
         .build());
   }
@@ -332,7 +397,7 @@ public class PatronRepository {
         .patronIdentifier(patronStatus.getPatronIdentifier())
         .personalName(patronStatus.getPatronIdentifier()) // required, using patron id for now
         .validPatron(FALSE)
-        .validPatronPassword(validPassword)
+        .validPatronPassword(FALSE)
         .screenMessage(Collections.singletonList(MESSAGE_INVALID_PATRON))
         .build());
   }
@@ -371,9 +436,10 @@ public class PatronRepository {
     return records.getInteger(FIELD_TOTAL_RECORDS, Integer.valueOf(0)).intValue();
   }
 
-  private PatronInformationResponseBuilder addPersonalData(Personal personal,
-                                                     String patronIdentifier,
-                                                     PatronInformationResponseBuilder builder) {
+  private PatronInformationResponseBuilder addPersonalData(
+      Personal personal,
+      String patronIdentifier,
+      PatronInformationResponseBuilder builder) {
     final String personalName = getPatronPersonalName(personal, patronIdentifier);
     final String homeAddress = getPatronHomeAddress(personal);
     final String emailAddress = personal == null ? null : personal.getEmail();
@@ -385,6 +451,26 @@ public class PatronRepository {
         .homePhoneNumber(homePhoneNumber);
   }
 
+  private PatronInformationResponseBuilder addChargedItems(JsonObject charges, boolean details,
+      PatronInformationResponseBuilder builder) {
+    final int chargedItemsCount;
+    final List<String> chargedItems;
+
+    if (charges != null) {
+      chargedItemsCount = Math.min(getTotalRecords(charges), 9999);
+      if (details) {
+        //TODO: simplify down to one getItems function
+        chargedItems = getLoanItems(charges);
+      } else {
+        chargedItems = null;
+      }
+    } else {
+      chargedItemsCount = 0;
+      chargedItems = null;
+    }
+
+    return builder.chargedItemsCount(Integer.valueOf(chargedItemsCount)).chargedItems(chargedItems);
+  }
   
   private PatronInformationResponseBuilder addHolds(JsonObject holds, boolean details,
       PatronInformationResponseBuilder builder) {
@@ -394,7 +480,7 @@ public class PatronRepository {
     if (holds != null) {
       holdItemsCount = Math.min(getTotalRecords(holds), 9999);
       if (details) {
-        holdItems = getHoldItems(holds);
+        holdItems = getRequestItems(holds);
       } else {
         holdItems = null;
       }
@@ -405,6 +491,47 @@ public class PatronRepository {
 
     return builder.holdItemsCount(Integer.valueOf(holdItemsCount)).holdItems(holdItems);
   }
+  
+  private PatronInformationResponseBuilder addUnAvailableHolds(JsonObject holds, boolean details,
+      PatronInformationResponseBuilder builder) {
+    final int holdItemsCount;
+    final List<String> holdItems;
+
+    if (holds != null) {
+      holdItemsCount = Math.min(getTotalRecords(holds), 9999);
+      if (details) {
+        holdItems = getRequestItems(holds);
+      } else {
+        holdItems = null;
+      }
+    } else {
+      holdItemsCount = 0;
+      holdItems = null;
+    }
+
+    return builder.unavailableHoldsCount(
+        Integer.valueOf(holdItemsCount)).unavailableHoldItems(holdItems);
+  }
+
+  private PatronInformationResponseBuilder addFineItems(JsonObject fines, boolean details,
+      PatronInformationResponseBuilder builder) {
+    final int fineItemsCount;
+    final List<String> fineItems;
+
+    if (fines != null) {
+      fineItemsCount = Math.min(getTotalRecords(fines), 9999);
+      if (details) {
+        fineItems = getFineItems(fines);
+      } else {
+        fineItems = null;
+      }
+    } else {
+      fineItemsCount = 0;
+      fineItems = null;
+    }
+
+    return builder.fineItemsCount(Integer.valueOf(fineItemsCount)).fineItems(fineItems);
+  }
 
   private PatronInformationResponseBuilder addOverdueItems(JsonObject overdues, boolean details,
       PatronInformationResponseBuilder builder) {
@@ -414,7 +541,7 @@ public class PatronRepository {
     if (overdues != null) {
       overdueItemsCount = Math.min(getTotalRecords(overdues), 9999);
       if (details) {
-        overdueItems = getOverdueItems(overdues);
+        overdueItems = getLoanItems(overdues);
       } else {
         overdueItems = null;
       }
@@ -486,18 +613,45 @@ public class PatronRepository {
   private List<String> getTitles(JsonArray items) {
     return items.stream()
         .map(o -> (JsonObject) o)
-        .map(jo -> getChildString(jo, "item", FIELD_TITLE))
+        .map(jo -> formatTitle(jo))
         .collect(Collectors.toList());
   }
 
-  private List<String> getHoldItems(JsonObject requests) {
-    // All items in the response are holds
+  private String formatTitle(JsonObject jo) {
+    final String barcode = getChildString(jo, "item", "barcode");
+    final String title = getChildString(jo, "item", FIELD_TITLE);
+    String dueDate = jo.getString("dueDate", "");
+    log.debug("dueDate", dueDate);
+    String loanDueDate = getChildString(jo, "loan", "dueDate");
+    log.debug("loanDueDate", loanDueDate);
+    if (dueDate.equals("") && !dueDate.equals("")) {
+      dueDate = loanDueDate;
+    }
+    DateTimeFormatter dueDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    String dateString = "";
+    if (!dueDate.equals("")) {
+      final OffsetDateTime parsedDate = OffsetDateTime
+          .from(Utils.getFolioDateTimeFormatter().parse(dueDate));
+      dateString = dueDateFormatter.format(parsedDate);
+    }
+    log.debug("========dateString============", dateString);
+    return barcode + " " + dateString  + " " + title;
+  }
+
+  private List<String> getFineItems(JsonObject accounts) {
+    // All items in the response are fine/fee acounts
+    final JsonArray requestArray = accounts.getJsonArray("accounts", new JsonArray());
+    return getTitles(requestArray);
+  }
+
+  private List<String> getRequestItems(JsonObject requests) {
+    // All items in the response are requests
     final JsonArray requestArray = requests.getJsonArray(FIELD_REQUESTS, new JsonArray());
     return getTitles(requestArray);
   }
 
-  private List<String> getOverdueItems(JsonObject loans) {
-    // All items in the response are overdue loans
+  private List<String> getLoanItems(JsonObject loans) {
+    // All items in the response are  loans
     final JsonArray requestArray = loans.getJsonArray("loans", new JsonArray());
     return getTitles(requestArray);
   }

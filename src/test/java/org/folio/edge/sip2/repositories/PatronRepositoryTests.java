@@ -32,6 +32,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -40,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.folio.edge.sip2.api.support.TestUtils;
 import org.folio.edge.sip2.domain.messages.enumerations.PatronStatus;
+import org.folio.edge.sip2.domain.messages.enumerations.RequestStatus;
 import org.folio.edge.sip2.domain.messages.enumerations.Summary;
 import org.folio.edge.sip2.domain.messages.requests.EndPatronSession;
 import org.folio.edge.sip2.domain.messages.requests.PatronInformation;
@@ -153,12 +155,15 @@ public class PatronRepositoryTests {
     final JsonObject openLoansResponse = new JsonObject(openLoansResponseJson);
     final String recallsResponseJson = getJsonFromFile("json/recall_requests_response.json");
     final JsonObject recallsResponse = new JsonObject(recallsResponseJson);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
+
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), any(), any(), any()))
+        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -256,12 +261,14 @@ public class PatronRepositoryTests {
     final String recallsResponseJson = getJsonFromFile("json/recall_requests_response.json");
     final JsonObject recallsResponse = new JsonObject(recallsResponseJson);
 
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
+
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-      any(), eq("Hold"), any(), any(), any()))
+      any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -358,13 +365,15 @@ public class PatronRepositoryTests {
     final JsonObject openLoansResponse = new JsonObject(openLoansResponseJson);
     final String recallsResponseJson = getJsonFromFile("json/recall_requests_response.json");
     final JsonObject recallsResponse = new JsonObject(recallsResponseJson);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
 
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-      any(), eq("Hold"), any(), any(), any()))
+      any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -459,12 +468,15 @@ public class PatronRepositoryTests {
     final JsonObject openLoansResponse = new JsonObject(openLoansResponseJson);
     final String recallsResponseJson = getJsonFromFile("json/recall_requests_response.json");
     final JsonObject recallsResponse = new JsonObject(recallsResponseJson);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
+
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), any(), any(), any()))
+        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -593,12 +605,15 @@ public class PatronRepositoryTests {
     final JsonObject openLoansResponse = new JsonObject(openLoansResponseJson);
     final String recallsResponseJson = getJsonFromFile("json/recall_requests_response.json");
     final JsonObject recallsResponse = new JsonObject(recallsResponseJson);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
+
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), any(), any(), any()))
+        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -700,12 +715,15 @@ public class PatronRepositoryTests {
     final JsonObject recallsResponse1 = new JsonObject(recallsResponse1Json);
     final String recallsResponse2Json = getJsonFromFile("json/recall_requests_response2.json");
     final JsonObject recallsResponse2 = new JsonObject(recallsResponse2Json);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
+
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), any(), any(), any()))
+        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -1015,12 +1033,15 @@ public class PatronRepositoryTests {
     final User userResponse = Json.decodeValue(userResponseJson, User.class);
     final String manualBlocksResponseJson = getJsonFromFile("json/no_manual_blocks_response.json");
     final JsonObject manualBlocksResponse = new JsonObject(manualBlocksResponseJson);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
+
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), any(), any(), any()))
+        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
@@ -1102,13 +1123,15 @@ public class PatronRepositoryTests {
     final User userResponse = Json.decodeValue(userResponseJson, User.class);
     final String manualBlocksResponseJson = getJsonFromFile("json/no_manual_blocks_response.json");
     final JsonObject manualBlocksResponse = new JsonObject(manualBlocksResponseJson);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
 
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), any(), any(), any()))
+        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(new JsonObject().put("loans",
@@ -1195,12 +1218,15 @@ public class PatronRepositoryTests {
 
     final String userResponseJson = getJsonFromFile("json/user_response2.json");
     final User userResponse = Json.decodeValue(userResponseJson, User.class);
+    
+    final ArrayList<RequestStatus> emptyRequestStatus = new ArrayList<RequestStatus>();
+
     when(mockFeeFinesRepository.getManualBlocksByUserId(any(), any()))
         .thenReturn(Future.succeededFuture(manualBlocksResponse));
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getRequestsByUserId(
-      any(), eq("Hold"), any(), any(), any()))
+      any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));

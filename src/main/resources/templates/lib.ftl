@@ -38,10 +38,18 @@
   </#list>
 </#macro>
 
-<#macro variableLengthDateField id value>
+<#macro variableLengthDateTimeField id value>
   ${id}<#t>
   <#if value?has_content>
     ${formatDateTime(value, "yyyyMMdd    HHmmss", timezone)}<#t>
+  </#if>
+  ${delimiter}<#t>
+</#macro>
+
+<#macro variableLengthDateField id value>
+  ${id}<#t>
+  <#if value?has_content>
+    ${formatDateTime(value, "yyyyMMdd", timezone)}<#t>
   </#if>
   ${delimiter}<#t>
 </#macro>
@@ -124,27 +132,25 @@
       <#case "CHARGED_NOT_TO_BE_RECALLED_UNTIL_EARLIEST_RECALL_DATE">
         05<#t>
         <#break>
-      <#case "CHARGED_NOT_TO_BE_RECALLED_UNTIL_EARLIEST_RECALL_DATE">
+      <#case "IN_PROCESS">
         06<#t>
         <#break>
-      <#case "IN_PROCESS">
+      <#case "RECALLED">
         07<#t>
         <#break>
-      <#case "RECALLED">
+      <#case "WAITING_ON_HOLD_SHELF">
         08<#t>
         <#break>
-      <#case "WAITING_ON_HOLD_SHELF">
+      <#case "WAITING_TO_BE_RESHELVED">
         09<#t>
         <#break>
-      <#case "WAITING_TO_BE_RESHELVED">
+      <#case "IN_TRANSIT_BETWEEN_LIBRARY_LOCATIONS">
         10<#t>
         <#break>
-      <#case "IN_TRANSIT_BETWEEN_LIBRARY_LOCATIONS">
+      <#case "CLAIMED_RETURNED">
         11<#t>
         <#break>
-      <#case "CLAIMED_RETURNED">
-        12<#t>
-        <#break>
+      <#case "LOST">
         12<#t>
         <#break>
       <#case "MISSING">
@@ -176,7 +182,7 @@
 
 <#macro dueDate value required=true>
   <#if required || value?has_content>
-    <@variableLengthDateField id="AH" value=value/>
+    <@variableLengthDateTimeField id="AH" value=value/>
   </#if>
 </#macro>
 
@@ -248,7 +254,7 @@
 
 <#macro holdPickupDate value required=true>
   <#if required || value?has_content>
-    <@variableLengthDateField id="CM" value=value/>
+    <@variableLengthDateTimeField id="CM" value=value/>
   </#if>
 </#macro>
 
@@ -262,6 +268,14 @@
 
 <#macro holdItemsLimit value>
   <@fixedLengthNumberToRangeField value=value id="BZ" min=0 max=9999 length=4/>
+</#macro>
+
+<#macro holdPatronId value>
+  <@variableLengthField id="CY" value=value/>
+</#macro>
+
+<#macro holdPatronName value>
+  <@variableLengthField id="DA" value=value/>
 </#macro>
 
 <#macro homeAddress value>
@@ -457,10 +471,18 @@
   <@variableLengthListField id="BG" value=value/>
 </#macro>
 
+<#macro patronBirthDate value>
+  <@variableLengthDateField id="PB" value=value/>
+</#macro>
+
 <#macro patronIdentifier value required=true>
   <#if required || value?has_content>
     <@variableLengthField id="AA" value=value/>
   </#if>
+</#macro>
+
+<#macro patronLoanClass value>
+  <@variableLengthField id="PC" value=value/>
 </#macro>
 
 <#macro patronStatus value>
@@ -495,7 +517,7 @@
 
 <#macro recallDate value required=false>
   <#if required || value?has_content>
-    <@variableLengthDateField id="CJ" value=value/>
+    <@variableLengthDateTimeField id="CJ" value=value/>
   </#if>
 </#macro>
 

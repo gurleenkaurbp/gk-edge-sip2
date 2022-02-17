@@ -66,6 +66,10 @@
 <@lib.emailAddress value=patronInformationResponse.emailAddress!""/>
 <#-- home phone number message: variable-length optional field -->
 <@lib.homePhoneNumber value=patronInformationResponse.homePhoneNumber!""/>
+<#-- patron class/type/group: variable-length optional field -->
+<@lib.patronLoanClass value=patronInformationResponse.patronLoanClass!""/>
+<#-- screen message: variable-length optional field -->
+<@lib.patronBirthDate value=patronInformationResponse.patronBirthDate!""/>
 <#-- screen message: variable-length optional field -->
 <@lib.screenMessage value=patronInformationResponse.screenMessage!""/>
 <#-- screen message: variable-length optional field -->

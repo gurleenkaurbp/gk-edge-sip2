@@ -8,6 +8,7 @@ package org.folio.edge.sip2.domain.messages.enumerations;
  */
 
 public enum CirculationStatus {
+  NONE,
   OTHER,
   ON_ORDER,
   AVAILABLE,
