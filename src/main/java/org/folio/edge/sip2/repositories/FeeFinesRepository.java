@@ -7,6 +7,8 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.lang.String;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Clock;
@@ -175,7 +177,8 @@ public class FeeFinesRepository {
     private final String amount;
     private final Boolean notifyPatron;
     private final String paymentMethod;
-    private final String account;
+    private String account;
+    private List<String> accounts;
     private final Map<String, String> headers;
     private final SessionData sessionData;
 
@@ -184,17 +187,22 @@ public class FeeFinesRepository {
         String paymentMethod,
         Boolean notifyPatron,
         String account,
+        List<String> accounts,
         Map<String, String> headers,
         SessionData sessionData) {
-      this.amount = amount;
+      this.amount = amount.trim();
       this.notifyPatron = notifyPatron; 
       this.paymentMethod = paymentMethod; 
       this.account = account;
+      this.accounts = accounts;
       this.headers = Collections.unmodifiableMap(new HashMap<>(headers));
       this.sessionData = sessionData;
     }
     
     public String getPath() {
+      if (account.equals("")) {
+        return "/accounts-bulk/pay";
+      }
 
       return "/accounts/" + account + "/pay";
     }
@@ -209,11 +217,16 @@ public class FeeFinesRepository {
       body
           .put("amount", amount)
           //.put("comments", itemIdentifier)
-          //.put("transactionInfo", feeIdentifier)
+          //.put("transactionInfo", feeIdentifier
           .put("notifyPatron", notifyPatron)
           .put("servicePointId", sessionData.getScLocation())
           .put("userName", sessionData.getUsername())
-          .put("paymentMethod", paymentMethod);   
+          .put("paymentMethod", paymentMethod);
+      log.debug("Account Test", account);
+      log.debug("Accounts Test", account);
+      if (account.equals("")) {
+        body.put("accountIds", new JsonArray(accounts));
+      }
       return body;
     }
 
@@ -233,23 +246,24 @@ public class FeeFinesRepository {
     // We'll need to convert this date properly. It is likely that it will not include timezone
     // information, so we'll need to use the tenant/SC timezone as the basis and convert to UTC.
     // final String scLocation = sessionData.getScLocation();
+    NumberFormat moneyFormatter = new DecimalFormat("0.00");
+    
     final String institutionId = feePaid.getInstitutionId();
     final String patronIdentifier = feePaid.getPatronIdentifier();
     final String transactionId = feePaid.getTransactionId();
-    final Float amountPaid = Float.valueOf(feePaid.getFeeAmount());
     
-    Pattern startWithUuid = Pattern.compile("^(\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})"); 
-    // UUID of the account to be paid
-    log.debug("FeeIdentifier CG: {}", () -> feePaid.getFeeIdentifier());
-    Matcher matcher = startWithUuid.matcher(feePaid.getFeeIdentifier());  
-    log.debug("FeeIdentifier match count : {}", () -> matcher.groupCount());
-    log.debug("FeeIdentifier matcher : {}", () -> matcher.toString());
-    String feeIdentifierMatch = "no match";
-    if (matcher.find()) { 
-      feeIdentifierMatch = matcher.group(1);
+    final Float amountPaid = Float.valueOf(feePaid.getFeeAmount()); //TODO - Decimal, not Float?
+    String feeIdentifierMatch = "";
+    if (feePaid.getFeeIdentifier() != null) {
+      Pattern startWithUuid = Pattern.compile("^(\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})"); 
+      // UUID of the account to be paid
+      Matcher matcher = startWithUuid.matcher(feePaid.getFeeIdentifier());  
+      feeIdentifierMatch = "";
+      if (matcher.find()) { 
+        feeIdentifierMatch = matcher.group(1);
+      }
     }
     final String feeIdentifier = feeIdentifierMatch;
-    log.debug("FeeIdentifier match: {}", () -> feeIdentifier);
 
     // This may need to be changed to passwordVerifier - GDG
     return usersRepository.getUserById(patronIdentifier, sessionData)
@@ -268,18 +282,18 @@ public class FeeFinesRepository {
             .otherwiseEmpty()
             .compose(resource -> {
               JsonObject accts = resource.getResource();
-              log.debug("accts: {}", () -> accts);
               final JsonArray acctList = accts.getJsonArray("accounts");
               Float acctTotal = totalAmount(acctList);
-              log.debug("amountPaid: {}", () -> amountPaid);
-              log.debug("remainingTotal: {}", () -> acctTotal);
+              BigDecimal bdAmountPaid = new BigDecimal(moneyFormatter.format(amountPaid));
+              BigDecimal bdAmountTotal = new BigDecimal(moneyFormatter.format(acctTotal));
+              log.debug(bdAmountPaid);
+              log.debug(bdAmountTotal);
+              log.debug(bdAmountPaid.compareTo(bdAmountTotal));
               // On overpayment return a FALSE Payment Accepted
-              
-              NumberFormat formatter = new DecimalFormat("0.00");
-              if (acctTotal < amountPaid) {
+              if (bdAmountPaid.compareTo(bdAmountTotal) > 0) {
                 List<String> scrnMsg = List.of("Paid amount ($"
-                    + formatter.format(amountPaid) + ") is more than amount owed ($"
-                    + formatter.format(acctTotal)
+                    + moneyFormatter.format(amountPaid) + ") is more than amount owed ($"
+                    + moneyFormatter.format(acctTotal)
                     + "). Please limit payment to no more than the amount owed.");
                 return Future.succeededFuture(FeePaidResponse.builder()
                 .paymentAccepted(FALSE)
@@ -301,6 +315,7 @@ public class FeeFinesRepository {
                   "Credit Card", // TODO - Default PaymentMethod
                   TRUE, // TODO - Default Notify
                   feeIdentifier,
+                  acctIdList,
                   headers,
                   sessionData);
 
@@ -312,7 +327,6 @@ public class FeeFinesRepository {
                 .otherwiseEmpty()
                 .compose(payresource -> {
                   JsonObject paidResponse = payresource.getResource();
-                  log.debug("paidResponse: {}", () -> paidResponse);
                   return Future.succeededFuture(FeePaidResponse.builder()
                     .paymentAccepted(paidResponse == null ? FALSE : TRUE)
                     .transactionDate(OffsetDateTime.now(clock))

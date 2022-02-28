@@ -62,6 +62,8 @@ public class PatronRepository {
   private static final String FIELD_REQUESTS = "requests";
   private static final String FIELD_TITLE = "title";
   private static final String FIELD_TOTAL_RECORDS = "totalRecords";
+  private static final String FIELD_INSTANCE = "instance";
+  private static final String FIELD_ITEM = "item";
   private static final Logger log = LogManager.getLogger();
   // These really should come from FOLIO
   static final String MESSAGE_INVALID_PATRON =
@@ -610,7 +612,15 @@ public class PatronRepository {
     return null;
   }
 
-  private List<String> getTitles(JsonArray items) {
+  private List<String> getTitlesForRequests(JsonArray items) {
+    return getTitles(items, FIELD_INSTANCE);
+  }
+
+  private List<String> getTitlesForLoans(JsonArray loans) {
+    return getTitles(loans, FIELD_ITEM);
+  }
+
+  private List<String> getTitles(JsonArray items, String childField) {
     return items.stream()
         .map(o -> (JsonObject) o)
         .map(jo -> formatTitle(jo))
@@ -647,7 +657,7 @@ public class PatronRepository {
   private List<String> getRequestItems(JsonObject requests) {
     // All items in the response are requests
     final JsonArray requestArray = requests.getJsonArray(FIELD_REQUESTS, new JsonArray());
-    return getTitles(requestArray);
+    return getTitlesForRequests(requestArray);
   }
 
   private List<String> getLoanItems(JsonObject loans) {
@@ -674,7 +684,7 @@ public class PatronRepository {
         .filter(jo -> getTotalRecords(jo) > 0)
         .map(jo -> jo.getJsonArray(FIELD_REQUESTS, new JsonArray()).stream().findAny()
             .map(o -> (JsonObject) o)
-            .map(jsonObject -> getChildString(jsonObject, "item", FIELD_TITLE)))
+            .map(jsonObject -> getChildString(jsonObject, FIELD_INSTANCE, FIELD_TITLE)))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .sorted(Comparator.naturalOrder())

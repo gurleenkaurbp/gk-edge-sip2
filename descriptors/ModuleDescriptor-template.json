@@ -9,7 +9,7 @@
     },
     {
       "id": "circulation",
-      "version": "7.0 8.0 9.0 10.0 11.0"
+      "version": "12.0 13.0"
     },
     {
       "id": "users",
@@ -21,7 +21,7 @@
     },
     {
       "id": "feesfines",
-      "version": "15.0 16.0"
+      "version": "15.0 16.0 17.0"
     }
   ],
   "permissionSets": [],

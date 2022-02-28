@@ -9,3 +9,5 @@ edge-sip2.iml
 gdg-build-deploy.sh
 /gogodocs
 .gitignore
+gogo_docs
+.vscode
