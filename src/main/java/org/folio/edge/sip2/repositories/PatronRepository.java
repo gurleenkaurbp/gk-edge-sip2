@@ -341,7 +341,7 @@ public class PatronRepository {
     List<String> fineItems = new ArrayList<String>();
     for (int i = 0;i < arr.size();i++) {
       total += arr.getJsonObject(i).getFloat("remaining");
-      fineItems.add(" " + arr.getJsonObject(i).getString("id")
+      fineItems.add(arr.getJsonObject(i).getString("id")
           + " " + formatter.format(arr.getJsonObject(i).getFloat("remaining"))
           + " \"" + arr.getJsonObject(i).getString("feeFineType")
           + "\" " + (arr.getJsonObject(i).getString("title") == null ? "" 
@@ -515,25 +515,25 @@ public class PatronRepository {
         Integer.valueOf(holdItemsCount)).unavailableHoldItems(holdItems);
   }
 
-  private PatronInformationResponseBuilder addFineItems(JsonObject fines, boolean details,
-      PatronInformationResponseBuilder builder) {
-    final int fineItemsCount;
-    final List<String> fineItems;
+  // private PatronInformationResponseBuilder addFineItems(JsonObject fines, boolean details,
+  //     PatronInformationResponseBuilder builder) {
+  //   final int fineItemsCount;
+  //   final List<String> fineItems;
 
-    if (fines != null) {
-      fineItemsCount = Math.min(getTotalRecords(fines), 9999);
-      if (details) {
-        fineItems = getFineItems(fines);
-      } else {
-        fineItems = null;
-      }
-    } else {
-      fineItemsCount = 0;
-      fineItems = null;
-    }
+  //   if (fines != null) {
+  //     fineItemsCount = Math.min(getTotalRecords(fines), 9999);
+  //     if (details) {
+  //       fineItems = getFineItems(fines);
+  //     } else {
+  //       fineItems = null;
+  //     }
+  //   } else {
+  //     fineItemsCount = 0;
+  //     fineItems = null;
+  //   }
 
-    return builder.fineItemsCount(Integer.valueOf(fineItemsCount)).fineItems(fineItems);
-  }
+  //   return builder.fineItemsCount(Integer.valueOf(fineItemsCount)).fineItems(fineItems);
+  // }
 
   private PatronInformationResponseBuilder addOverdueItems(JsonObject overdues, boolean details,
       PatronInformationResponseBuilder builder) {
@@ -644,15 +644,14 @@ public class PatronRepository {
           .from(Utils.getFolioDateTimeFormatter().parse(dueDate));
       dateString = dueDateFormatter.format(parsedDate);
     }
-    log.debug("========dateString============", dateString);
     return barcode + " " + dateString  + " " + title;
   }
 
-  private List<String> getFineItems(JsonObject accounts) {
-    // All items in the response are fine/fee acounts
-    final JsonArray requestArray = accounts.getJsonArray("accounts", new JsonArray());
-    return getTitles(requestArray);
-  }
+  // private List<String> getFineItems(JsonObject accounts) {
+  //   // All items in the response are fine/fee acounts
+  //   final JsonArray requestArray = accounts.getJsonArray("accounts", new JsonArray());
+  //   return getTitlesForRequests(requestArray );
+  // }
 
   private List<String> getRequestItems(JsonObject requests) {
     // All items in the response are requests
@@ -663,7 +662,7 @@ public class PatronRepository {
   private List<String> getLoanItems(JsonObject loans) {
     // All items in the response are  loans
     final JsonArray requestArray = loans.getJsonArray("loans", new JsonArray());
-    return getTitles(requestArray);
+    return getTitlesForLoans(requestArray);
   }
 
   private int countRecallItems(List<Future<JsonObject>> recallItems) {
