@@ -22,6 +22,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.common.reflection.qual.GetConstructor;
 import org.folio.edge.sip2.domain.messages.enumerations.CirculationStatus;
 import org.folio.edge.sip2.domain.messages.enumerations.ItemStatus;
 import org.folio.edge.sip2.domain.messages.enumerations.SecurityMarker;
@@ -112,7 +113,8 @@ public class ItemRepository {
       // qsMap.put("limit", "1");
       // qsMap.put("key2", "value2");
       // qsMap.put("key3", "value3");
-      String uri = "/circulation/requests?limit=1&query=status==Open - Awaiting pickup and itemId=="
+      String uri = "/circulation/requests?limit=1&query=status=="
+          + "(Open - Awaiting pickup or Open - In Transit) and itemId=="
           + itemUuid;
       log.info("URI: {}", () -> uri);
       return uri;
@@ -204,6 +206,9 @@ public class ItemRepository {
               log.debug("circStatus: {}", item.getJsonObject("status").getString("name"));
               log.debug("circStatusName: {}", lookupCirculationStatus(item.getJsonObject("status")
                   .getString("name")));
+              log.debug("itemStatusCollection: {}", Collections.singletonList(
+                  item.getJsonObject("status").getString("name")));
+              
               builder
                   .circulationStatus(
                       lookupCirculationStatus(item.getJsonObject("status").getString("name")))
@@ -212,13 +217,19 @@ public class ItemRepository {
                   .dueDate(OffsetDateTime.now(clock))
                   .itemIdentifier(itemIdentifier)
                   .titleIdentifier(item.getString("title"))
-                  .permanentLocation(item.getJsonObject("effectiveLocation").getString("name"));
+                  .permanentLocation(item.getJsonObject("effectiveLocation").getString("name"))
+                  .destinationInstitutionId(
+                      item.getJsonObject("effectiveLocation").getString("name"))
+                  .screenMessage(Collections.singletonList(
+                      item.getJsonObject("status").getString("name")));
               JsonObject holdResponse = holdResource.getResource();
 
               if (holdResponse.getJsonArray("requests").size() > 0) {
                 JsonObject nextHold = holdResponse.getJsonArray("requests").getJsonObject(0);
                 JsonObject holdPatron = nextHold.getJsonObject("requester");
+                JsonObject holdLocation = nextHold.getJsonObject("pickupServicePoint");
                 builder
+                    .destinationInstitutionId(holdLocation.getString("name"))
                     .holdPatronId(holdPatron.getString("barcode"))
                     .holdPatronName(holdPatron.getString("lastName") + ", "
                       + holdPatron.getString("firstName"));

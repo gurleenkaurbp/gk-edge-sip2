@@ -180,6 +180,10 @@
   <@booleanToYorNorU value=value/><#t>
 </#macro>
 
+<#macro destinationInstitutionId value>
+  <@variableLengthField id="CT" value=value!""/>
+</#macro>
+
 <#macro dueDate value required=true>
   <#if required || value?has_content>
     <@variableLengthDateTimeField id="AH" value=value/>

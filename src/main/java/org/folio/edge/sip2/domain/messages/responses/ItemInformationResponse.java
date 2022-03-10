@@ -58,6 +58,8 @@ public final class ItemInformationResponse {
   /** Specific item information that can be user for identification. */
   private final String itemProperties;
   /** The patron ID on the next hold for this item. */
+  private final String destinationInstitutionId;
+  /** The patron ID on the next hold for this item. */
   private final String holdPatronId;
   /** The patron name on the next hold for this item. */
   private final String holdPatronName;
@@ -88,6 +90,7 @@ public final class ItemInformationResponse {
     this.mediaType = builder.mediaType;
     this.permanentLocation = builder.permanentLocation;
     this.currentLocation = builder.currentLocation;
+    this.destinationInstitutionId = builder.destinationInstitutionId;
     this.holdPatronId = builder.holdPatronId;
     this.holdPatronName = builder.holdPatronName;
     this.itemProperties = builder.itemProperties;
@@ -173,6 +176,10 @@ public final class ItemInformationResponse {
     return itemProperties;
   }
 
+  public String getDestinationInstitutionId() {
+    return destinationInstitutionId;
+  }
+
   public String getHoldPatronId() {
     return holdPatronId;
   }
@@ -194,8 +201,8 @@ public final class ItemInformationResponse {
     return Objects.hash(circulationStatus, currencyType, currentLocation,
         dueDate, feeAmount, feeType, holdPickupDate, holdQueueLength,
         itemIdentifier, itemProperties, mediaType, owner, permanentLocation,
-        printLine, recallDate, holdPatronId, holdPatronName, screenMessage,
-        securityMarker, titleIdentifier, transactionDate);
+        printLine, recallDate, destinationInstitutionId, holdPatronId, holdPatronName,
+        screenMessage, securityMarker, titleIdentifier, transactionDate);
   }
 
   @Override
@@ -225,6 +232,7 @@ public final class ItemInformationResponse {
         && Objects.equals(permanentLocation, other.permanentLocation)
         && Objects.equals(printLine, other.printLine)
         && Objects.equals(recallDate, other.recallDate)
+        && Objects.equals(destinationInstitutionId, other.destinationInstitutionId)
         && Objects.equals(holdPatronId, other.holdPatronId)
         && Objects.equals(holdPatronName, other.holdPatronName)
         && Objects.equals(screenMessage, other.screenMessage)
@@ -253,6 +261,7 @@ public final class ItemInformationResponse {
         .append(", permanentLocation=").append(permanentLocation)
         .append(", currentLocation=").append(currentLocation)
         .append(", itemProperties=").append(itemProperties)
+        .append(", destinationInstitutionId=").append(destinationInstitutionId)
         .append(", holdPatronId=").append(holdPatronId)
         .append(", holdPatronName=").append(holdPatronName)
         .append(", screenMessage=").append(screenMessage)
@@ -281,6 +290,7 @@ public final class ItemInformationResponse {
     private String permanentLocation;
     private String currentLocation;
     private String itemProperties;
+    private String destinationInstitutionId;
     private String holdPatronId;
     private String holdPatronName;
     private List<String> screenMessage;
@@ -384,6 +394,12 @@ public final class ItemInformationResponse {
     public ItemInformationResponseBuilder itemProperties(
         String itemProperties) {
       this.itemProperties = itemProperties;
+      return this;
+    }
+    
+    public ItemInformationResponseBuilder destinationInstitutionId(
+        String destinationInstitutionId) {
+      this.destinationInstitutionId = destinationInstitutionId;
       return this;
     }
 

@@ -32,6 +32,8 @@
 <@lib.currentLocation value=itemInformationResponse.currentLocation!""/>
 <#-- item properties: variable-length optional field -->
 <@lib.itemProperties value=itemInformationResponse.itemProperties!""/>
+<#-- destinationInstitutionId: variable-length optional field -->
+<@lib.destinationInstitutionId value=itemInformationResponse.destinationInstitutionId!""/>
 <#-- hold patron id: variable-length optional field -->
 <@lib.holdPatronId value=itemInformationResponse.holdPatronId!""/>
 <#-- hold patron name: variable-length optional field -->
