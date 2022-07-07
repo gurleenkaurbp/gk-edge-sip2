@@ -97,6 +97,21 @@
 </#macro>
 
 <#-- Command macros that are mapped directly to a field name -->
+<#macro acsLibraryName value>
+  <#if value?has_content>
+    <@variableLengthField id="AM" value=value/>
+  </#if>
+</#macro>
+
+<#macro acsTerminalLocation value>
+  <#if value?has_content>
+    <@variableLengthField id="AN" value=value/>
+  </#if>
+</#macro>
+
+<#macro author value required=false>
+  <@variableLengthField id="EA" value=value/>
+</#macro>
 
 <#macro alert value>
   <@booleanToYorN value=value/><#t>
@@ -212,7 +227,7 @@
 
 <#macro feeType value>
   <#if value?has_content>
-    BT<#t>
+    <#t>
     <#switch value>
       <#case "OTHER_UNKNOWN">
         01<#t>
@@ -291,6 +306,12 @@
 <#macro homePhoneNumber value>
   <#if value?has_content>
     <@variableLengthField id="BF" value=value/>
+  </#if>
+</#macro>
+
+<#macro isbn value required=false>
+  <#if value?has_content>
+    <@variableLengthListRepeatableField id="IN" value=value length=50/>
   </#if>
 </#macro>
 
@@ -585,6 +606,12 @@
 <#macro sortBin value>
   <#if value?has_content>
     <@variableLengthField id="CL" value=value/>
+  </#if>
+</#macro>
+
+<#macro summary value required=false>
+  <#if value?has_content>
+    <@variableLengthField id="CH" value=value/>
   </#if>
 </#macro>
 

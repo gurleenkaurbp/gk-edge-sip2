@@ -40,6 +40,12 @@
 <@lib.holdPatronName value=itemInformationResponse.holdPatronName!""/>
 <#-- materialType: variable-length optional field -->
 <@lib.materialType value=itemInformationResponse.materialType!"" required=false/>
+<#-- author: variable-length optional field -->
+<@lib.author value=itemInformationResponse.author!"" required=false/>
+<#-- summary: variable-length optional field -->
+<@lib.summary value=itemInformationResponse.summary!"" required=false/>
+<#-- isbn: variable-length optional field -->
+<@lib.isbn value=itemInformationResponse.isbn!"" required=false/>
 <#-- screen message: variable-length optional field -->
 <@lib.screenMessage value=itemInformationResponse.screenMessage!""/>
 <#-- screen message: variable-length optional field -->

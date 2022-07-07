@@ -1,28 +1,19 @@
 package org.folio.edge.sip2.repositories;
 
-
-import static org.folio.edge.sip2.domain.messages.enumerations.CirculationStatus.OTHER;
-import static org.folio.edge.sip2.domain.messages.enumerations.SecurityMarker.OTHER;
-
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import java.lang.String;
 import java.time.Clock;
 import java.time.OffsetDateTime;
-// import java.time.ZoneOffset;
-// import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.common.reflection.qual.GetConstructor;
 import org.folio.edge.sip2.domain.messages.enumerations.CirculationStatus;
 import org.folio.edge.sip2.domain.messages.enumerations.ItemStatus;
 import org.folio.edge.sip2.domain.messages.enumerations.SecurityMarker;
@@ -31,6 +22,7 @@ import org.folio.edge.sip2.domain.messages.responses.ItemInformationResponse;
 import org.folio.edge.sip2.domain.messages.responses.ItemInformationResponse.ItemInformationResponseBuilder;
 import org.folio.edge.sip2.session.SessionData;
 //import org.folio.edge.sip2.utils.Utils.buildQueryString;
+
 
 
 /**
@@ -69,16 +61,74 @@ public class ItemRepository {
         Map<String, String> headers,
         SessionData sessionData) {
       this.itemIdentifier = itemIdentifier;
-      this.headers = Collections.unmodifiableMap(new HashMap<>(headers));
+      this.headers = headers;
       this.sessionData = sessionData;
     }
     
     public String getPath() {
-      // Map<String,String> qsMap = new HashMap<String, String>();
-      // qsMap.put("limit", "1");
-      // qsMap.put("key2", "value2");
-      // qsMap.put("key3", "value3");
       String uri = "/inventory/items?limit=1&query=barcode==" + itemIdentifier;
+      log.info("URI: {}", () -> uri);
+      return uri;
+    }
+
+    public Map<String, String> getHeaders() {
+      return headers;
+    }
+
+    @Override
+    public SessionData getSessionData() {
+      return sessionData;
+    }
+  }
+
+  private class HoldingsRequestData implements IRequestData {
+
+    private final String holdingsId;
+    private final Map<String, String> headers;
+    private final SessionData sessionData;
+
+    private HoldingsRequestData(
+        String holdingsId,
+        Map<String, String> headers,
+        SessionData sessionData) {
+      this.holdingsId = holdingsId;
+      this.headers = headers;
+      this.sessionData = sessionData;
+    }
+    
+    public String getPath() {
+      String uri = "/holdings-storage/holdings/" + holdingsId;
+      log.info("URI: {}", () -> uri);
+      return uri;
+    }
+
+    public Map<String, String> getHeaders() {
+      return headers;
+    }
+
+    @Override
+    public SessionData getSessionData() {
+      return sessionData;
+    }
+  }
+
+  private class InstanceRequestData implements IRequestData {
+
+    private final String instanceId;
+    private final Map<String, String> headers;
+    private final SessionData sessionData;
+
+    private InstanceRequestData(
+        String instanceId,
+        Map<String, String> headers,
+        SessionData sessionData) {
+      this.instanceId = instanceId;
+      this.headers = headers;
+      this.sessionData = sessionData;
+    }
+
+    public String getPath() {
+      String uri = "/inventory/instances/" + instanceId;
       log.info("URI: {}", () -> uri);
       return uri;
     }
@@ -146,10 +196,6 @@ public class ItemRepository {
     }
     
     public String getPath() {
-      // Map<String,String> qsMap = new HashMap<String, String>();
-      // qsMap.put("limit", "1");
-      // qsMap.put("key2", "value2");
-      // qsMap.put("key3", "value3");
       String uri = "/circulation/loans?query=(itemId==" + itemUuid
           + " and status.name==Open) sortby status&";
       log.info("URI: {}", () -> uri);
@@ -167,33 +213,26 @@ public class ItemRepository {
   }
 
   /**
-   * Perform a itemInformation.
+   * Perform itemInformation command.
    *
    * @param itemInformation the itemInformation domain object
    * @return the itemInformation response domain object
    */
   public Future<ItemInformationResponse> performItemInformationCommand(
       ItemInformation itemInformation, SessionData sessionData) {
-    // We'll need to convert this date properly. It is likely that it will not include timezone
-    // information, so we'll need to use the tenant/SC timezone as the basis and convert to UTC.
-    // final String scLocation = sessionData.getScLocation();
     final String itemIdentifier = itemInformation.getItemIdentifier();
 
-    final Map<String, String> headers = getBaseHeaders();
     ItemInformationRequestData itemInformationRequestData =
-        new ItemInformationRequestData(itemIdentifier, headers, sessionData);
-
-    Future<IResource> itemsResult;
-    itemsResult = resourceProvider
-      .retrieveResource(itemInformationRequestData);
-
-    return itemsResult
+        new ItemInformationRequestData(itemIdentifier, getBaseHeaders(), sessionData);
+    
+    return getItemView(itemInformationRequestData)
       .otherwiseEmpty()
-      .compose(itemsResource -> {
-        JsonObject itemsResponse = itemsResource.getResource();
-        JsonObject item = itemsResponse.getJsonArray("items").getJsonObject(0);
+      .compose(itemView -> {
+        JsonObject item = itemView.getJsonObject("item");
+        JsonObject holding = itemView.getJsonObject("holding");
+        JsonObject instance = itemView.getJsonObject("instance");
         NextHoldRequestData nextHoldRequestData =
-            new NextHoldRequestData(item.getString("id"), headers, sessionData);
+            new NextHoldRequestData(item.getString("id"), getBaseHeaders(), sessionData);
 
         Future<IResource> nextHoldResult;
         nextHoldResult = resourceProvider.retrieveResource(nextHoldRequestData);
@@ -201,14 +240,8 @@ public class ItemRepository {
         return nextHoldResult
             .otherwiseEmpty()
             .compose(holdResource -> {
-        
               final ItemInformationResponseBuilder builder = ItemInformationResponse.builder();
-              log.debug("circStatus: {}", item.getJsonObject("status").getString("name"));
-              log.debug("circStatusName: {}", lookupCirculationStatus(item.getJsonObject("status")
-                  .getString("name")));
-              log.debug("itemStatusCollection: {}", Collections.singletonList(
-                  item.getJsonObject("status").getString("name")));
-              
+;
               builder
                   .circulationStatus(
                       lookupCirculationStatus(item.getJsonObject("status").getString("name")))
@@ -220,6 +253,9 @@ public class ItemRepository {
                   .permanentLocation(item.getJsonObject("effectiveLocation").getString("name"))
                   .destinationInstitutionId(
                       item.getJsonObject("effectiveLocation").getString("name"))
+                  .isbn(getIsbn(instance.getJsonArray("identifiers")))
+                  .author(getAuthor(instance.getJsonArray("contributors")))
+                  .summary(getSummary(instance.getJsonArray("notes")))
                   .screenMessage(Collections.singletonList(
                       item.getJsonObject("status").getString("name")));
               JsonObject holdResponse = holdResource.getResource();
@@ -237,7 +273,7 @@ public class ItemRepository {
               if (item.getJsonObject("status")
                   .getString("name").equals(ItemStatus.CHECKED_OUT.getValue())) {
                     LoanRequestData loanRequestData =
-                        new LoanRequestData(item.getString("id"), headers, sessionData);
+                        new LoanRequestData(item.getString("id"), getBaseHeaders(), sessionData);
                     Future<IResource> loansResult = resourceProvider
                         .retrieveResource(loanRequestData);
                     //   loansResult
@@ -254,7 +290,105 @@ public class ItemRepository {
       }); // end compose
   }
 
+  private Future<JsonObject> getItemView(ItemInformationRequestData itemInformationRequestData) {
+    
+    JsonObject itemJson = new JsonObject();
+    JsonObject holdingJson = new JsonObject();
+    JsonObject instanceJson = new JsonObject();
+    
+    return getItem(itemInformationRequestData)
+        .compose(itemResult -> {
+          itemJson.mergeIn(itemResult);
+          String holdingsId = itemResult.getString("holdingsRecordId");
+          HoldingsRequestData holdingsRequestData = 
+              new HoldingsRequestData(holdingsId, getBaseHeaders(), 
+                itemInformationRequestData.sessionData);
 
+          return getHoldings(holdingsRequestData)
+              .compose(holdingsResult -> {
+                holdingJson.mergeIn(holdingsResult);
+                String instanceId = holdingsResult.getString("instanceId");
+                InstanceRequestData instanceRequestData = 
+                    new InstanceRequestData(instanceId, getBaseHeaders(), 
+                      holdingsRequestData.sessionData);
+
+                return getInstance(instanceRequestData)
+                    .compose(instanceResult -> {
+                      instanceJson.mergeIn(instanceResult);
+                      JsonArray identifiers = instanceResult.getJsonArray("identifiers");
+                      return Future.succeededFuture(instanceResult);
+                    });
+              });
+        })
+        .compose(ar -> {
+          JsonObject viewJson = new JsonObject();
+          viewJson
+              .put("item", itemJson)
+              .put("holding", holdingJson)
+              .put("instance", instanceJson);
+          return Future.succeededFuture(viewJson);
+        });
+  }
+
+  private Future<JsonObject> getItem(ItemInformationRequestData itemInformationRequestData) {
+    return resourceProvider
+      .retrieveResource(itemInformationRequestData)
+      .compose(itemResource -> {
+        JsonObject item = itemResource.getResource();
+        return Future.succeededFuture(item
+          .getJsonArray("items").getJsonObject(0));
+      });
+  }
+
+  private Future<JsonObject> getHoldings(HoldingsRequestData holdingsRequestData) {
+    return resourceProvider
+      .retrieveResource(holdingsRequestData)
+      .compose(holdingsResource -> {
+        JsonObject holdings = holdingsResource.getResource();
+        return Future.succeededFuture(holdings);
+      });
+  }
+
+  private Future<JsonObject> getInstance(InstanceRequestData instanceRequestData) {
+    return resourceProvider
+      .retrieveResource(instanceRequestData)
+      .compose(instanceResource -> {
+        JsonObject instance = instanceResource.getResource();
+        return Future.succeededFuture(instance);
+      });
+  }
+  
+  private String getAuthor(JsonArray contributers) {
+    for (int i = 0;i < contributers.size();i++) {
+      if (contributers.getJsonObject(i).getBoolean("primary").equals(true)) {
+        return contributers.getJsonObject(i).getString("name");
+      }
+    }
+    return "Not Found";
+  }
+  
+  private List<String> getIsbn(JsonArray identifiers) {
+    List<String> list = new ArrayList<String>();
+    for (int i = 0;i < identifiers.size();i++) {
+      if (identifiers
+          .getJsonObject(i)
+          .getString("identifierTypeId").equals("8261054f-be78-422d-bd51-4ed9f33c3422")) {
+        list.add(identifiers.getJsonObject(i).getString("value"));
+      }
+    }
+    return list;
+  }
+  
+  private String getSummary(JsonArray notes) {
+    for (int i = 0;i < notes.size();i++) {
+      if (notes
+          .getJsonObject(i)
+          .getString("instanceNoteTypeId").equals("10e2e11b-450f-45c8-b09b-0f819999966e")) {
+        return notes.getJsonObject(i).getString("note");
+      }
+    }
+    return "";
+  }
   
   /**
    * Lookup SIP CirculationStatus by FOLIO Item Status.
