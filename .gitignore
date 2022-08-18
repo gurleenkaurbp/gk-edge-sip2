@@ -11,3 +11,5 @@ gdg-build-deploy.sh
 .gitignore
 gogo_docs
 .vscode
+.factorypath
+.gitignore

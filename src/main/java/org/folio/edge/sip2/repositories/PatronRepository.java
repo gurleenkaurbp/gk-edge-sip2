@@ -147,6 +147,8 @@ public class PatronRepository {
 
     final String patronIdentifier = patronStatus.getPatronIdentifier();
     final String patronPassword = patronStatus.getPatronPassword();
+    log.debug("IsPatronVerificationRequired just before forcing it:", 
+        sessionData.isPatronPasswordVerificationRequired());
     sessionData.setPatronPasswordVerificationRequired(TRUE);
 
     return passwordVerifier.verifyPatronPassword(patronIdentifier, patronPassword, sessionData)
@@ -615,25 +617,37 @@ public class PatronRepository {
   private List<String> getTitlesForRequests(JsonArray items) {
     return getTitles(items, FIELD_INSTANCE);
   }
+  
+  // Charged Items in the Patron Information only need to return barcodes
+  // in all the SIP systems we tested -GDG
 
   private List<String> getTitlesForLoans(JsonArray loans) {
-    return getTitles(loans, FIELD_ITEM);
+    return getBarcodes(loans, FIELD_ITEM);
   }
 
   private List<String> getTitles(JsonArray items, String childField) {
     return items.stream()
         .map(o -> (JsonObject) o)
-        .map(jo -> formatTitle(jo))
+        .filter(jo -> getChildString(jo, "item", "barcode") != null)
+        .map(jo -> formatTitle(jo, childField))
         .collect(Collectors.toList());
   }
 
-  private String formatTitle(JsonObject jo) {
+  
+
+  private List<String> getBarcodes(JsonArray items, String childField) {
+    return items.stream()
+        .map(o -> (JsonObject) o)
+        .filter(jo -> getChildString(jo, "item", "barcode") != null)
+        .map(jo ->  getChildString(jo, "item", "barcode"))
+        .collect(Collectors.toList());
+  }
+
+  private String formatTitle(JsonObject jo, String childField) {
     final String barcode = getChildString(jo, "item", "barcode");
-    final String title = getChildString(jo, "item", FIELD_TITLE);
+    final String title = getChildString(jo, childField, FIELD_TITLE);
     String dueDate = jo.getString("dueDate", "");
-    log.debug("dueDate", dueDate);
     String loanDueDate = getChildString(jo, "loan", "dueDate");
-    log.debug("loanDueDate", loanDueDate);
     if (dueDate.equals("") && !dueDate.equals("")) {
       dueDate = loanDueDate;
     }

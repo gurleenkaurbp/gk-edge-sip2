@@ -222,8 +222,6 @@ public class FeeFinesRepository {
           .put("servicePointId", sessionData.getScLocation())
           .put("userName", sessionData.getUsername())
           .put("paymentMethod", paymentMethod);
-      log.debug("Account Test", account);
-      log.debug("Accounts Test", account);
       if (account.equals("")) {
         body.put("accountIds", new JsonArray(accounts));
       }

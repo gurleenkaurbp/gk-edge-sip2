@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ import org.folio.edge.sip2.domain.messages.requests.ItemInformation;
 import org.folio.edge.sip2.domain.messages.responses.ItemInformationResponse;
 import org.folio.edge.sip2.domain.messages.responses.ItemInformationResponse.ItemInformationResponseBuilder;
 import org.folio.edge.sip2.session.SessionData;
+import org.folio.edge.sip2.utils.Utils;
 //import org.folio.edge.sip2.utils.Utils.buildQueryString;
 
 
@@ -182,23 +184,22 @@ public class ItemRepository {
 
   private class LoanRequestData implements IRequestData {
 
-    private final String itemUuid;
+    private final String itemId;
     private final Map<String, String> headers;
     private final SessionData sessionData;
 
     private LoanRequestData(
-        String itemUuid,
+        String itemId,
         Map<String, String> headers,
         SessionData sessionData) {
-      this.itemUuid = itemUuid;
+      this.itemId = itemId;
       this.headers = Collections.unmodifiableMap(new HashMap<>(headers));
       this.sessionData = sessionData;
     }
     
     public String getPath() {
-      String uri = "/circulation/loans?query=(itemId==" + itemUuid
+      String uri = "/circulation/loans?query=(itemId==" + itemId
           + " and status.name==Open) sortby status&";
-      log.info("URI: {}", () -> uri);
       return uri;
     }
 
@@ -231,6 +232,8 @@ public class ItemRepository {
         JsonObject item = itemView.getJsonObject("item");
         JsonObject holding = itemView.getJsonObject("holding");
         JsonObject instance = itemView.getJsonObject("instance");
+        JsonObject loan = itemView.getJsonObject("loan");
+        log.debug("itemView1: {}", () -> itemView);
         NextHoldRequestData nextHoldRequestData =
             new NextHoldRequestData(item.getString("id"), getBaseHeaders(), sessionData);
 
@@ -238,16 +241,21 @@ public class ItemRepository {
         nextHoldResult = resourceProvider.retrieveResource(nextHoldRequestData);
         
         return nextHoldResult
-            .otherwiseEmpty()
+            .otherwise(Utils::handleErrors)
             .compose(holdResource -> {
               final ItemInformationResponseBuilder builder = ItemInformationResponse.builder();
-;
+              OffsetDateTime dueDate = OffsetDateTime.now(clock);
+              if (!loan.isEmpty()) {
+                dueDate = OffsetDateTime.from(
+                    Utils.getFolioDateTimeFormatter().parse(loan.getString("dueDate"))
+                );
+              }
               builder
                   .circulationStatus(
                       lookupCirculationStatus(item.getJsonObject("status").getString("name")))
                   .securityMarker(SecurityMarker.NONE)
                   .transactionDate(OffsetDateTime.now(clock))
-                  .dueDate(OffsetDateTime.now(clock))
+                  .dueDate(dueDate)
                   .itemIdentifier(itemIdentifier)
                   .titleIdentifier(item.getString("title"))
                   .permanentLocation(item.getJsonObject("effectiveLocation").getString("name"))
@@ -295,13 +303,18 @@ public class ItemRepository {
     JsonObject itemJson = new JsonObject();
     JsonObject holdingJson = new JsonObject();
     JsonObject instanceJson = new JsonObject();
-    
+    JsonObject loanJson = new JsonObject();
+    //TODO this should be refactored for concurrency not sequential, holds and loans
     return getItem(itemInformationRequestData)
         .compose(itemResult -> {
           itemJson.mergeIn(itemResult);
+          String itemId = itemResult.getString("id");
           String holdingsId = itemResult.getString("holdingsRecordId");
           HoldingsRequestData holdingsRequestData = 
               new HoldingsRequestData(holdingsId, getBaseHeaders(), 
+                itemInformationRequestData.sessionData);
+          LoanRequestData loanRequestData = 
+              new LoanRequestData(itemId, getBaseHeaders(), 
                 itemInformationRequestData.sessionData);
 
           return getHoldings(holdingsRequestData)
@@ -315,9 +328,15 @@ public class ItemRepository {
                 return getInstance(instanceRequestData)
                     .compose(instanceResult -> {
                       instanceJson.mergeIn(instanceResult);
-                      JsonArray identifiers = instanceResult.getJsonArray("identifiers");
-                      return Future.succeededFuture(instanceResult);
+                      //JsonArray identifiers = instanceResult.getJsonArray("identifiers");
+                      return getLoan(loanRequestData)
+                        .compose(loanResult -> {
+                          log.debug("LoanResult: {}", () -> loanResult);
+                          loanJson.mergeIn(loanResult);
+                          return Future.succeededFuture(loanResult);
+                        });
                     });
+
               });
         })
         .compose(ar -> {
@@ -325,7 +344,8 @@ public class ItemRepository {
           viewJson
               .put("item", itemJson)
               .put("holding", holdingJson)
-              .put("instance", instanceJson);
+              .put("instance", instanceJson)
+              .put("loan", loanJson);
           return Future.succeededFuture(viewJson);
         });
   }
@@ -357,7 +377,36 @@ public class ItemRepository {
         return Future.succeededFuture(instance);
       });
   }
+
+  private Future<JsonObject> getLoan(LoanRequestData loanRequestData) {
+    return resourceProvider
+      .retrieveResource(loanRequestData)
+      .compose(loanResource -> {
+        JsonObject loan = loanResource.getResource();
+        if (loan.getJsonArray("loans").isEmpty()) {
+          
+          JsonObject noloan = new JsonObject();
+          return Future.succeededFuture(noloan);
+        }
+        return Future.succeededFuture(loan.getJsonArray("loans").getJsonObject(0));
+      });
+  }
+
+  // private Future<JsonObject> getLoan(LoanRequestData loanRequestData) {
+  //   final Future<IResource> result = resourceProvider.createResource(loanRequestData);
+  //   return result
+  //     .map(resource -> {
+  //       final Optional<JsonObject> response = Optional.ofNullable(resource.getResource());
+    
+  //       final OffsetDateTime dueDate = response
+  //           .map(v -> v.getString("dueDate"))
+  //           .map(v -> OffsetDateTime.from(Utils.getFolioDateTimeFormatter().parse(v)))
+  //           .orElse(OffsetDateTime.now(clock));
+  //     });
+  // }
   
+  
+        
   private String getAuthor(JsonArray contributers) {
     for (int i = 0;i < contributers.size();i++) {
       if (contributers.getJsonObject(i).getBoolean("primary").equals(true)) {

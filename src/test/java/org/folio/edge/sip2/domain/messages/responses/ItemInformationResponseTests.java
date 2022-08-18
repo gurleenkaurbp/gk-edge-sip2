@@ -25,6 +25,7 @@ import org.folio.edge.sip2.domain.messages.enumerations.CurrencyType;
 import org.folio.edge.sip2.domain.messages.enumerations.FeeType;
 import org.folio.edge.sip2.domain.messages.enumerations.MediaType;
 import org.folio.edge.sip2.domain.messages.enumerations.SecurityMarker;
+import org.junit.jupiter.api.AssertionsKt;
 import org.junit.jupiter.api.Test;
 
 class ItemInformationResponseTests {
@@ -45,8 +46,12 @@ class ItemInformationResponseTests {
   final String permanentLocation = "circ_desk";
   final String currentLocation = "another_circ_desk";
   final String itemProperties = "Directors Cut";
+  final String destinationInstitutionId = "That branch";
   final String holdPatronId = "Very Id ";
   final String holdPatronName = "Very Name";
+  final String author = "That girl";
+  final String summary = "Very descriptive";
+  final List<String> isbn = asList("1011011101101");
   final List<String> screenMessage = asList("Please rewind");
   final List<String> printLine = asList("Enjoy!");
 
@@ -588,6 +593,7 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .destinationInstitutionId(destinationInstitutionId)
         .holdPatronId(holdPatronId)
         .holdPatronName(holdPatronName)
         .screenMessage(screenMessage)
@@ -611,6 +617,7 @@ class ItemInformationResponseTests {
         () -> assertEquals(permanentLocation, iir.getPermanentLocation()),
         () -> assertEquals(currentLocation, iir.getCurrentLocation()),
         () -> assertEquals(itemProperties, iir.getItemProperties()),
+        () -> assertEquals(destinationInstitutionId, iir.getDestinationInstitutionId()),
         () -> assertEquals(holdPatronId, iir.getHoldPatronId()),
         () -> assertEquals(holdPatronName, iir.getHoldPatronName()),
         () -> assertEquals(screenMessage, iir.getScreenMessage()),
@@ -638,8 +645,12 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .destinationInstitutionId(destinationInstitutionId)
         .holdPatronId(holdPatronId)
         .holdPatronName(holdPatronName)
+        .author(author)
+        .summary(summary)
+        .isbn(isbn)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -661,8 +672,12 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .destinationInstitutionId(destinationInstitutionId)
         .holdPatronId(holdPatronId)
         .holdPatronName(holdPatronName)
+        .author(author)
+        .summary(summary)
+        .isbn(isbn)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -690,8 +705,12 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .destinationInstitutionId(destinationInstitutionId)
         .holdPatronId(holdPatronId)
         .holdPatronName(holdPatronName)
+        .author(author)
+        .summary(summary)
+        .isbn(isbn)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();
@@ -713,8 +732,12 @@ class ItemInformationResponseTests {
         .permanentLocation("basement")
         .currentLocation("stolen")
         .itemProperties("Testing")
+        .destinationInstitutionId("Testing branch")
         .holdPatronId("Other Id")
         .holdPatronName("Other Name")
+        .author("That guy")
+        .summary("not descriptive enouhg")
+        .isbn(asList("0001110001110"))
         .screenMessage(asList("This is a test"))
         .printLine(asList("This is a print test"))
         .build();
@@ -742,8 +765,12 @@ class ItemInformationResponseTests {
         .append(", permanentLocation=").append(permanentLocation)
         .append(", currentLocation=").append(currentLocation)
         .append(", itemProperties=").append(itemProperties)
+        .append(", destinationInstitutionId=").append(destinationInstitutionId)
         .append(", holdPatronId=").append(holdPatronId)
         .append(", holdPatronName=").append(holdPatronName)
+        .append(", author=").append(author)
+        .append(", summary=").append(summary)
+        .append(", isbn=").append(isbn)
         .append(", screenMessage=").append(screenMessage)
         .append(", printLine=").append(printLine)
         .append(']').toString();
@@ -765,8 +792,12 @@ class ItemInformationResponseTests {
         .permanentLocation(permanentLocation)
         .currentLocation(currentLocation)
         .itemProperties(itemProperties)
+        .destinationInstitutionId(destinationInstitutionId)
         .holdPatronId(holdPatronId)
         .holdPatronName(holdPatronName)
+        .author(author)
+        .summary(summary)
+        .isbn(isbn)
         .screenMessage(screenMessage)
         .printLine(printLine)
         .build();

@@ -136,9 +136,13 @@ public class MainVerticle extends AbstractVerticle {
           tenantConfig.getString("fieldDelimiter", "|").charAt(0),
           tenantConfig.getBoolean("errorDetectionEnabled", FALSE),
           tenantConfig.getString("charset", "IBM850"));
+
       sessionData.setTimeZone(defaultTimezone);
+      //sessionData.setTimeZone(tenantConfig.getString("timezone")); 
+      // sessionData.setPatronPasswordVerificationRequired(
+      //     tenantConfig.getBoolean("patronPasswordVerificationRequired"));
       log.debug("t: {}",tenantConfig);
-      log.debug("CLient IP {}", clientAddress);
+      log.debug("Client IP {}", clientAddress);
       final String messageDelimiter = tenantConfig.getString("messageDelimiter", "\r");
       socket.handler(RecordParser.newDelimited(messageDelimiter, buffer -> {
         final Timer.Sample sample = metrics.sample();
@@ -196,7 +200,7 @@ public class MainVerticle extends AbstractVerticle {
 
           handler
               .execute(message.getRequest(), sessionData)
-              .setHandler(ar -> {
+              .onComplete(ar -> {
                 if (ar.succeeded()) {
                   final String responseMsg;
                   if (message.getCommand() == REQUEST_ACS_RESEND) {
@@ -297,7 +301,7 @@ public class MainVerticle extends AbstractVerticle {
       //resends validation if checksum string does not match
       ISip2RequestHandler handler = handlers.get(Command.REQUEST_SC_RESEND);
       handler.execute(message.getRequest(), sessionData)
-          .setHandler(ar -> {
+          .onComplete(ar -> {
             if (ar.succeeded()) {
               sample.stop(metrics.commandTimer(message.getCommand()));
               socket.write(formatResponse(ar.result(), message, sessionData,

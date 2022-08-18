@@ -108,6 +108,7 @@ public class CirculationRepository {
               + (resource.getResource() == null ? UNKNOWN
                   : getSubChildString(resource.getResource(),
                       Arrays.asList("staffSlipContext", "requester"), "lastName", UNKNOWN));
+          
           List<String> scrnMsg = List.of(itemStatusString
               + " - "
               + transitDestinationString);
@@ -128,7 +129,9 @@ public class CirculationRepository {
               // this allows the kiosk to show something related to the item that could be used
               // by the patron to identify which item this checkin response applies to.
               .titleIdentifier(resource.getResource() == null ? itemIdentifier
-                  : getChildString(resource.getResource(), "item", "title", itemIdentifier))
+                  : getChildString(
+                        resource.getResource(), "item", "title", itemIdentifier
+                      ))
               // this is probably not the permanent location
               // this might require a call to inventory
               // GDG - it appears to be effective location, which is most likely appropriate
@@ -136,7 +139,10 @@ public class CirculationRepository {
                   resource.getResource() == null ? UNKNOWN
                       : getSubChildString(resource.getResource(),
                           Arrays.asList("item", "location"), "name", UNKNOWN))
-              .screenMessage(scrnMsg)
+              .screenMessage(
+                  itemStatusString.isBlank() 
+                  && transitDestinationString.isBlank() ? null : scrnMsg
+                )
               .build());
         }
         );
@@ -227,6 +233,7 @@ public class CirculationRepository {
     final String institutionId = renew.getInstitutionId();
     final String patronIdentifier = renew.getPatronIdentifier();
     final String patronPassword = renew.getPatronPassword();
+    final String barcode = renew.getItemIdentifier();
 
     return passwordVerifier.verifyPatronPassword(patronIdentifier, patronPassword, sessionData)
         .compose(verification -> {
@@ -241,7 +248,9 @@ public class CirculationRepository {
 
           final User user = verification.getUser();
           final JsonObject body = new JsonObject()
-              .put("servicePointId", sessionData.getScLocation());
+              .put("servicePointId", sessionData.getScLocation())
+              .put("userBarcode", patronIdentifier)
+              .put("itemBarcode", barcode);
 
           final Map<String, String> headers = getBaseHeaders();
 
@@ -255,10 +264,27 @@ public class CirculationRepository {
               .map(resource -> {
                 final Optional<JsonObject> response = Optional.ofNullable(resource.getResource());
 
+                final Boolean renewalOk = response
+                    .map(v -> !v.getJsonObject("item").isEmpty())
+                    .orElse(FALSE);
+                final OffsetDateTime dueDate = response
+                    .map(v -> v.getString("dueDate"))
+                    .map(v -> OffsetDateTime.from(Utils.getFolioDateTimeFormatter().parse(v)))
+                    .orElse(OffsetDateTime.now(clock));
+                final String instanceId = response
+                    .map(v -> v.getJsonObject("item").getString("instanceId"))
+                    .orElse("");
+
                 return RenewResponse.builder()
                     .ok(Boolean.valueOf(response.isPresent()))
+                    .renewalOk(renewalOk)
                     .transactionDate(OffsetDateTime.now(clock))
                     .institutionId(institutionId)
+                    .patronIdentifier(patronIdentifier)
+                    .itemIdentifier(barcode)
+                    .titleIdentifier(instanceId)
+                    
+                    .dueDate(dueDate)
                     .screenMessage(Optional.of(resource.getErrorMessages())
                         .filter(v -> !v.isEmpty())
                         .orElse(null))
@@ -576,7 +602,7 @@ public class CirculationRepository {
       qSb.append(')');
       qSb.append(')');
       final StringBuilder urlSb = new StringBuilder()
-          .append("/circulation/requests?query=")
+          .append("/circulation/requests?limit=10&query=")
           .append(Utils.encode(qSb.toString()));
 
       return appendLimits(urlSb).toString();
@@ -599,7 +625,7 @@ public class CirculationRepository {
     @Override
     public String getPath() {
       String query = Utils.encode("(userId==" + userId + " and status.name=Open)");
-      return "/circulation/loans?query=" + query;
+      return "/circulation/loans?limit=200&query=" + query;
     }
   }
 
@@ -628,7 +654,7 @@ public class CirculationRepository {
           .append(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(dueDate))
           .append(')');
       final StringBuilder path = new StringBuilder()
-          .append("/circulation/loans?query=")
+          .append("/circulation/loans?limit=200&query=")
           .append(Utils.encode(qSb.toString()));
 
       return appendLimits(path).toString();

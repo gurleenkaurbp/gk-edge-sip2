@@ -29,9 +29,9 @@ ${ACSStatus.retriesAllowed?string("000")}<#rt>
 ${formatDateTime(ACSStatus.dateTimeSync, "yyyyMMdd    HHmmss", timezone)}<#t>
 ${ACSStatus.protocolVersion}<#rt>
 AO${ACSStatus.institutionId}|<#rt>
-AM${ACSStatus.libraryName}|<#rt>
+<@lib.acsLibraryName value=ACSStatus.libraryName!""/>
 BX<@supportedMessages />|<#rt>
-AN${ACSStatus.terminalLocation}|<#rt>
+<@lib.acsTerminalLocation value=ACSStatus.terminalLocation!""/>
 <#-- screen message: variable-length optional field -->
 <@lib.screenMessage value=ACSStatus.screenMessage!""/>
 <#-- screen message: variable-length optional field -->

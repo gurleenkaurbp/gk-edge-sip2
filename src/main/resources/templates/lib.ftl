@@ -480,6 +480,10 @@
   <@booleanTo1or0 value=value/><#t>
 </#macro>
 
+<#macro onLineStatus value>
+  <@booleanToYorN value=value/><#t>
+</#macro>
+
 <#macro overdueItems value>
   <@variableLengthListField id="AT" value=value/>
 </#macro>

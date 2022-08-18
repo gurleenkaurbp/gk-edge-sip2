@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import io.vertx.core.Future;
@@ -163,7 +164,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+        any(), eq("Hold"), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -180,7 +181,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertNotNull(patronInformationResponse.getPatronStatus());
@@ -268,7 +269,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-      any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+      any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -373,7 +374,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-      any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+      any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -476,7 +477,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+        any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -497,7 +498,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertNotNull(patronInformationResponse.getPatronStatus());
@@ -613,7 +614,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+        any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -630,7 +631,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertNotNull(patronInformationResponse.getPatronStatus());
@@ -723,7 +724,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(overdueResponse));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+        any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(holdsResponse));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(openLoansResponse));
@@ -744,7 +745,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertNotNull(patronInformationResponse.getPatronStatus());
@@ -818,7 +819,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertEquals(EnumSet.allOf(PatronStatus.class),
@@ -891,7 +892,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertEquals(EnumSet.allOf(PatronStatus.class),
@@ -964,7 +965,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertEquals(EnumSet.allOf(PatronStatus.class),
@@ -1041,7 +1042,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+        any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
@@ -1053,7 +1054,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertEquals(EnumSet.noneOf(PatronStatus.class),
@@ -1131,7 +1132,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getRequestsByUserId(
-        any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+        any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(new JsonObject().put("loans",
@@ -1147,7 +1148,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertEquals(EnumSet.noneOf(PatronStatus.class),
@@ -1226,7 +1227,7 @@ public class PatronRepositoryTests {
     when(mockCirculationRepository.getOverdueLoansByUserId(any(), any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getRequestsByUserId(
-      any(), eq("Hold"), emptyRequestStatus, any(), any(), any()))
+      any(), eq("Hold"), eq(emptyRequestStatus), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
     when(mockCirculationRepository.getLoansByUserId(any(), any(), any(), any()))
         .thenReturn(Future.succeededFuture(null));
@@ -1238,7 +1239,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performPatronInformationCommand(patronInformation, sessionData).setHandler(
+    patronRepository.performPatronInformationCommand(patronInformation, sessionData).onComplete(
         testContext.succeeding(patronInformationResponse -> testContext.verify(() -> {
           assertNotNull(patronInformationResponse);
           assertEquals(expectedPatronStatus,
@@ -1308,7 +1309,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performEndPatronSessionCommand(endPatronSession, sessionData).setHandler(
+    patronRepository.performEndPatronSessionCommand(endPatronSession, sessionData).onComplete(
         testContext.succeeding(endSessionResponse -> testContext.verify(() -> {
           assertNotNull(endSessionResponse);
           assertTrue(endSessionResponse.getEndSession());
@@ -1349,7 +1350,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performEndPatronSessionCommand(endPatronSession, sessionData).setHandler(
+    patronRepository.performEndPatronSessionCommand(endPatronSession, sessionData).onComplete(
         testContext.succeeding(endSessionResponse -> testContext.verify(() -> {
           assertNotNull(endSessionResponse);
           assertTrue(endSessionResponse.getEndSession());
@@ -1393,7 +1394,7 @@ public class PatronRepositoryTests {
 
     final PatronRepository patronRepository = new PatronRepository(mockUsersRepository,
         mockCirculationRepository, mockFeeFinesRepository, mockPasswordVerifier, clock);
-    patronRepository.performEndPatronSessionCommand(endPatronSession, sessionData).setHandler(
+    patronRepository.performEndPatronSessionCommand(endPatronSession, sessionData).onComplete(
         testContext.succeeding(endSessionResponse -> testContext.verify(() -> {
           assertNotNull(endSessionResponse);
           assertFalse(endSessionResponse.getEndSession());

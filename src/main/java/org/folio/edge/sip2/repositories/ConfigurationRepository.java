@@ -133,7 +133,6 @@ public class ConfigurationRepository {
             log.error("Getting no value from config store for one of the result config records");
           }
         }
-
         return Future.succeededFuture(resultJsonConfigs);
 
       } else {
@@ -146,12 +145,11 @@ public class ConfigurationRepository {
   }
 
   private ACSStatusBuilder setACSConfig(LinkedHashMap<String, JsonObject> sets,
-                                        String configKeyTenant, String configKeySC,
-                                        String configKeyLocale, ACSStatusBuilder builder,
-                                        SessionData sessionData) {
-
+        String configKeyTenant, String configKeySC,
+        String configKeyLocale, ACSStatusBuilder builder,
+        SessionData sessionData) {
     addTenantConfig(sets.get(configKeyTenant), sessionData, builder);
-    addSCStationConfig(sets.get(configKeySC), builder);
+    addSCStationConfig(sets.get(configKeySC), sessionData, builder);
     addLocaleConfig(sets.get(configKeyLocale), sessionData);
     builder.institutionId(sessionData.getTenant());
 
@@ -166,8 +164,8 @@ public class ConfigurationRepository {
 
   private void addTenantConfig(JsonObject config, SessionData sessionData,
       ACSStatusBuilder builder) {
-    log.debug("patronPasswordVerificationRequired: {}", 
-        config.getBoolean("patronPasswordVerificationRequired config", Boolean.FALSE));
+    log.debug("pre-t patronPasswordVerificationRequired: {}", 
+        config.getBoolean("patronPasswordVerificationRequired"));
     if (config != null) {
       builder.onLineStatus(true);
       builder.statusUpdateOk(config.getBoolean("statusUpdateOk"));
@@ -175,21 +173,30 @@ public class ConfigurationRepository {
       builder.protocolVersion("2.00");
       builder.supportedMessages(getSupportedMessagesFromJson(
           config.getJsonArray("supportedMessages")));
-      sessionData.setPatronPasswordVerificationRequired(
-          config.getBoolean("patronPasswordVerificationRequired", Boolean.TRUE));
+      log.debug("sessionData: {}", 
+          sessionData.toString());
+      // sessionData.setPatronPasswordVerificationRequired(
+      //     config.getBoolean("patronPasswordVerificationRequired"));
     }
   }
 
-  private void addSCStationConfig(JsonObject config, ACSStatusBuilder builder) {
+  private void addSCStationConfig(JsonObject config, SessionData sessionData,
+      ACSStatusBuilder builder) {
+    log.debug("pre-sc patronPasswordVerificationRequired: {}", 
+        config.toString());
     if (config != null) {
-      builder.retriesAllowed(config.getInteger("retriesAllowed"));
-      builder.timeoutPeriod(config.getInteger("timeoutPeriod"));
-      builder.checkinOk(config.getBoolean("checkinOk"));
-      builder.acsRenewalPolicy(config.getBoolean("acsRenewalPolicy"));
-      builder.checkoutOk(config.getBoolean("checkoutOk"));
+      builder.retriesAllowed(config.getInteger("retriesAllowed", 3));
+      builder.timeoutPeriod(config.getInteger("timeoutPeriod",30));
+      builder.checkinOk(config.getBoolean("checkinOk", Boolean.TRUE));
+      builder.acsRenewalPolicy(config.getBoolean("acsRenewalPolicy", Boolean.FALSE));
+      builder.checkoutOk(config.getBoolean("checkoutOk", Boolean.TRUE));
       builder.dateTimeSync(OffsetDateTime.now(clock));
       builder.libraryName(config.getString("libraryName"));
       builder.terminalLocation(config.getString("terminalLocation"));
+      log.debug("sessionData: {}", 
+          sessionData.toString());
+      // sessionData.setPatronPasswordVerificationRequired(
+      //     config.getBoolean("patronPasswordVerificationRequired"));
     }
   }
 

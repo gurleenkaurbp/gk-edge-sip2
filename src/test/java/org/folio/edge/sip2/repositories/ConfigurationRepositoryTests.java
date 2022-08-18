@@ -92,12 +92,12 @@ public class ConfigurationRepositoryTests {
     SessionData sessionData = TestUtils.getMockedSessionData();
     sessionData.setScLocation("SE10");
 
-    configurationRepository.getACSStatus(sessionData).setHandler(
+    configurationRepository.getACSStatus(sessionData).onComplete(
         testContext.succeeding(status -> testContext.verify(() -> {
 
           assertNotNull(status);
           assertEquals(true, status.getOnLineStatus());
-          assertEquals(false, status.getCheckinOk());
+          assertEquals(true, status.getCheckinOk());
           assertEquals(true, status.getCheckoutOk());
           assertEquals(false, status.getAcsRenewalPolicy());
           assertEquals(true, status.getOffLineOk());
@@ -139,7 +139,7 @@ public class ConfigurationRepositoryTests {
     ConfigurationRepository configRepo = new ConfigurationRepository(resourceProvider, clock);
 
     configRepo.retrieveConfigurations(TestUtils.getMockedSessionData(),
-        configParamsList).setHandler(
+        configParamsList).onComplete(
           testContext.succeeding(testTenantConfig -> testContext.verify(() -> {
             assertNotNull(testTenantConfig);
 
