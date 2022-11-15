@@ -259,7 +259,6 @@
       <#default>
         01<#t>
     </#switch>
-    ${delimiter}<#t>
   </#if>
 </#macro>
 
